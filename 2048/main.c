@@ -1,9 +1,8 @@
+extern int accel_init(void);
 
 
-/**
- * main.c
- */
+
 int main(void)
 {
-	return 0;
+	 accel_init();
 }
