@@ -1,3 +1,5 @@
+#define REG(p) ((volatile uint32_t *)(p))
+
 //                                                                            //
 //                           GPIO registers                                   //
 //                                                                            //
@@ -38,3 +40,35 @@
 #define GPIO_PCellID1(p) REG(p + 0xFF4) // GPIO PrimeCell Identification 1 (p. 701)
 #define GPIO_PCellID2(p) REG(p + 0xFF8) // GPIO PrimeCell Identification 2 (p. 702)
 #define GPIO_PCellID3(p) REG(p + 0xFFC) // GPIO PrimeCell Identification 3 (p. 703)
+
+//                                                                            //
+//                              Timer registers
+//                                                                            //
+
+#define GPTM_CFG(p) REG(p + 0x000) // GPTM Configuration (p. 727)
+#define GPTM_TAMR(p) REG(p + 0x004) // GPTM Timer A Mode (p. 729)
+#define GPTM_TBMR(p) REG(p + 0x008) // GPTM Timer B Mode (p. 733)
+#define GPTM_CTL(p) REG(p + 0x00C) // GPTM Control (p. 737)
+#define GPTM_SYNC(p) REG(p + 0x010) // GPTM Synchronize (p. 741)
+#define GPTM_IMR(p) REG(p + 0x018) // GPTM Interrupt Mask (p. 745)
+#define GPTM_RIS(p) REG(p + 0x01C) // GPTM Raw Interrupt Status (p. 748)
+#define GPTM_MIS(p) REG(p + 0x020) // GPTM Masked Interrupt Status (p. 751)
+#define GPTM_ICR(p) REG(p + 0x024) // GPTM Interrupt Clear (p. 754)
+#define GPTM_TAILR(p) REG(p + 0x028) // GPTM Timer A Interval Load (p. 756)
+#define GPTM_TBILR(p) REG(p + 0x02C) // GPTM Timer B Interval Load (p. 757)
+#define GPTM_TAMATCHR(p) REG(p + 0x030) // GPTM Timer A Match (p. 758)
+#define GPTM_TBMATCHR(p) REG(p + 0x034) // GPTM Timer B Match (p. 759)
+#define GPTM_TAPR(p) REG(p + 0x038) // GPTM Timer A Prescale (p. 760)
+#define GPTM_TBPR(p) REG(p + 0x03C) // GPTM Timer B Prescale (p. 761)
+#define GPTM_TAPMR(p) REG(p + 0x040) // GPTM TimerA Prescale Match (p. 762)
+#define GPTM_TBPMR(p) REG(p + 0x044) // GPTM TimerB Prescale Match (p. 763)
+#define GPTM_TAR(p) REG(p + 0x048) // GPTM Timer A (p. 764)
+#define GPTM_TBR(p) REG(p + 0x04C) // GPTM Timer B (p. 765)
+#define GPTM_TAV(p) REG(p + 0x050) // GPTM Timer A Value (p. 766)
+#define GPTM_TBV(p) REG(p + 0x054) // GPTM Timer B Value (p. 767)
+#define GPTM_RTCPD(p) REG(p + 0x058) // GPTM RTC Predivide (p. 768)
+#define GPTM_TAPS(p) REG(p + 0x05C) // GPTM Timer A Prescale Snapshot (p. 769)
+#define GPTM_TBPS(p) REG(p + 0x060) // GPTM Timer B Prescale Snapshot (p. 770)
+#define GPTM_TAPV(p) REG(p + 0x064) // GPTM Timer A Prescale Value (p. 771)
+#define GPTM_TBPV(p) REG(p + 0x068) // GPTM Timer B Prescale Value (p. 772)
+#define GPTM_PP(p) REG(p + 0xFC0) // GPTM Peripheral Properties (p. 773)
