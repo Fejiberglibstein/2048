@@ -222,3 +222,38 @@
 #define GPTM_TBPV(p) REG(p + 0x068) // GPTM Timer B Prescale Value (p. 772)
 #define GPTM_PP(p) REG(p + 0xFC0) // GPTM Peripheral Properties (p. 773)
 
+//                                                                            //
+//                               I2C Registers                                //
+//                                                                            //
+
+#define I2C_0 0x40020000
+#define I2C_1 0x40021000
+#define I2C_2 0x40022000
+#define I2C_3 0x40023000
+
+#define I2C_MSA(p) REG(p + 0x000) // I2C Master Slave Address (p. 1019)
+#define I2C_MCS(p) REG(p + 0x004) // I2C Master Control/Status (p. 1020)
+#define I2C_MDR(p) REG(p + 0x008) // I2C Master Data (p. 1025)
+#define I2C_MTPR(p) REG(p + 0x00C) // I2C Master Timer Period (p. 1026)
+#define I2C_MIMR(p) REG(p + 0x010) // I2C Master Interrupt Mask (p. 1027)
+#define I2C_MRIS(p) REG(p + 0x014) // I2C Master Raw Interrupt Status (p. 1028)
+#define I2C_MMIS(p) REG(p + 0x018) // I2C Master Masked Interrupt Status (p. 1029)
+#define I2C_MICR(p) REG(p + 0x01C) // I2C Master Interrupt Clear (p. 1030)
+#define I2C_MCR(p) REG(p + 0x020) // I2C Master Configuration (p. 1031)
+#define I2C_MCLKOCNT(p) REG(p + 0x024) // I2C Master Clock Low Timeout Count (p. 1033)
+#define I2C_MBMON(p) REG(p + 0x02C) // I2C Master Bus Monitor (p. 1034)
+#define I2C_MCR2(p) REG(p + 0x038) // I2C Master Configuration 2 (p. 1035)
+
+
+#define I2C_SOAR(p) REG(p + 0x800) // I2C Slave Own Address (p. 1036)
+#define I2C_SCSR(p) REG(p + 0x804) // I2C Slave Control/Status (p. 1037)
+#define I2C_SDR(p) REG(p + 0x808) // I2C Slave Data (p. 1039)
+#define I2C_SIMR(p) REG(p + 0x80C) // I2C Slave Interrupt Mask (p. 1040)
+#define I2C_SRIS(p) REG(p + 0x810) // I2C Slave Raw Interrupt Status (p. 1041)
+#define I2C_SMIS(p) REG(p + 0x814) // I2C Slave Masked Interrupt Status (p. 1042)
+#define I2C_SICR(p) REG(p + 0x818) // I2C Slave Interrupt Clear (p. 1043)
+#define I2C_SOAR2(p) REG(p + 0x81C) // I2C Slave Own Address 2 (p. 1044)
+#define I2C_SACKCTL(p) REG(p + 0x820) // I2C Slave ACK Control (p. 1045)
+
+#define I2C_PP(p) REG(p + 0xFC0) // I2C Peripheral Properties (p. 1046)
+#define I2C_PC(p) REG(p + 0xFC4) // I2C Peripheral Configuration (p. 1047)
