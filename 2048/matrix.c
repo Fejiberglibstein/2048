@@ -1,4 +1,5 @@
 #include "include/matrix.h"
+#include "stdbool.h"
 #include "include/tiva.h"
 #include "stdint.h"
 
@@ -23,9 +24,7 @@ DmaChannel DmaControlTable[15] __attribute__((aligned(1024)));
 
 struct {
     // First buffer
-    uint8_t buffers[64 * 32 * 4][2];
-    // Pointer to the current buffer
-    uint8_t *buf_ptr;
+    uint8_t buffers[2][64 * 32 * 4];
     // Will be between [0, 3] since there are 4 bit plane levels
     uint8_t bitplane_level;
     // Will be between [0, 31] since there are 32 rows
@@ -54,9 +53,9 @@ void matrix_init() {
     *GPIO_DR8R(gpio_port_b) |= clk_and_rgb_pins_mask;   // drive with 8mA
     *GPIO_DEN(gpio_port_b) |= clk_and_rgb_pins_mask;    // digital enable
 
-    uint32_t address_pins = 0b01111111;     // Use all pins but PE8
-    *GPIO_DIR(gpio_port_e) |= address_pins; // enable output
-    *GPIO_DEN(gpio_port_e) |= address_pins; // digital enable
+    uint32_t address_pins_mask = 0b01111111;     // Use all pins but PE8
+    *GPIO_DIR(gpio_port_e) |= address_pins_mask; // enable output
+    *GPIO_DEN(gpio_port_e) |= address_pins_mask; // digital enable
 
     //                                                                        //
     //                        Initialize uDMA                                 //
@@ -77,7 +76,7 @@ void matrix_init() {
     chan = &DmaControlTable[channel_number];
     *DMA_ALTCLR |= 1 << channel_number;
     *DMA_CHMAP0 |= map_select << (channel_number * 4);
-    chan->src_buffer = &MatrixState.buf1; // Start with the first buffer
+    chan->src_buffer = &MatrixState.buffers[0]; // Start with the first buffer
     chan->dest_buffer = (void *)(rgb_and_clk_pin);
     chan->control_word = (
           0b11 << 30   // No destination increment
@@ -153,6 +152,14 @@ void matrix_init() {
     *REG(0xE000E100) |= 1 << 19; // Timer 0 is 19th offset in interrupt vtable
 }
 
+uint8_t *matrix_get_rbuf() {
+    return MatrixState.buffers[MatrixState.current_buf];
+}
+
+uint8_t *matrix_get_wbuf() {
+    return MatrixState.buffers[(MatrixState.current_buf + 1) % 2];
+}
+
 // ((_timer_freq / _max_freq) / _addr_lines) / ((1 << _num_bit_planes) - 1) / 4
 #define timer_min_delay ((16000000 / 250) / 32) / ((1 << 4) - 1) / 4
 
@@ -188,7 +195,6 @@ void timer_0_handler(void) {
             MatrixState.current_row = 0;
             // Switch to the alternate buffer
             MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
-            MatrixState.buf_ptr = MatrixState.buffers[MatrixState.current_buf];
         }
     }
     *address_pins = MatrixState.current_row;
@@ -198,15 +204,15 @@ void timer_0_handler(void) {
 
     // Update the src buffer
     DmaControlTable[4].src_buffer = (
-        MatrixState.buf_ptr // Base buffer addr
+        matrix_get_rbuf()// Base buffer addr
         + (MatrixState.current_row * 64 * 4) // offset by current row
         + 63                                 // Go to the end of the buffer
         + (MatrixState.bitplane_level << 6)  // Offset by the bitlevel
     );
 
     // Update the transfer size and set mode to basic for the 3 channels
-    DmaControlTable[4].control_word  |= ((64 - 1) << 4) | (0x1 << 0);
-    DmaControlTable[6].control_word  |= ((64 - 1) << 4) | (0x1 << 0);
+    DmaControlTable[4].control_word |= ((64 - 1) << 4) | (0x1 << 0);
+    DmaControlTable[6].control_word |= ((64 - 1) << 4) | (0x1 << 0);
     DmaControlTable[14].control_word |= ((64 - 1) << 4) | (0x1 << 0);
 
     // Reenable dma
@@ -240,6 +246,5 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
         | (((g & 4) >> 2) << 18)
         | (((g & 8) >> 3) << 26);
     // clang-format on
-
     return co;
 }
