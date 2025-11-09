@@ -192,7 +192,7 @@ void timer_0_handler(void) {
     if (MatrixState.bitplane_level == 0) {
         // Increment by 2 since address pin are shifted
         MatrixState.current_row += 2;
-        if (MatrixState.current_row >= 32) {
+        if (MatrixState.current_row >= 64) {
             MatrixState.current_row = 0;
             // Switch to the alternate buffer
             // matrix_swap_bufs();
@@ -242,10 +242,10 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
         | (((g & 8) >> 3) << 25);
 
     // Set b
-    co |= (((g & 1) >> 0) << 2)
-        | (((g & 2) >> 1) << 10)
-        | (((g & 4) >> 2) << 18)
-        | (((g & 8) >> 3) << 26);
+    co |= (((b & 1) >> 0) << 2)
+        | (((b & 2) >> 1) << 10)
+        | (((b & 4) >> 2) << 18)
+        | (((b & 8) >> 3) << 26);
     // clang-format on
     return co;
 }
