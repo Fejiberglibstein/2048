@@ -3,6 +3,7 @@
 #include "include/matrix.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 void game_clear(GameState *gs);
@@ -186,6 +187,9 @@ void game_new_random_tile(GameState *gs) {
 }
 
 void game_move(GameState *gs, enum GameMoveDirection direction) {
+    uint8_t coipy[4][4];
+    memcpy(coipy, gs->game_board, 16);
+
     switch (direction) {
     case MOVE_UP:
         game_move_up(gs);
@@ -201,7 +205,11 @@ void game_move(GameState *gs, enum GameMoveDirection direction) {
         break;
     }
 
-    game_new_random_tile(gs);
+    bool h = memcmp(coipy, gs->game_board, 16);
+
+    if (h) {
+        game_new_random_tile(gs);
+    }
 
     render_board(gs);
 }
