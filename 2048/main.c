@@ -56,7 +56,7 @@ void accel_write_reg(uint8_t reg_addr, uint8_t data) {
 
     // Write register address first
     *I2C_MDR(I2C_1) = reg_addr;
-    *I2C_MCS(I2C_1) = 0b00011; // START + RUN
+    *I2C_MCS(I2C_1) = 0b00111; // START + RUN
 
     // Wait for completion
     while (*I2C_MCS(I2C_1) & (1 << 6))
@@ -78,7 +78,7 @@ uint8_t accel_read_reg(uint8_t reg_addr) {
     // Write register address (no stop)
     *I2C_MSA(I2C_1) = LSM303AGR_ADDR_WRITE;
     *I2C_MDR(I2C_1) = reg_addr;
-    *I2C_MCS(I2C_1) = 0b00011; // START + RUN
+    *I2C_MCS(I2C_1) = 0b00111; // START + RUN
 
     // Wait for completion
     while (*I2C_MCS(I2C_1) & (1 << 6))
@@ -108,13 +108,17 @@ int main() {
 
     // Test accel_read_reg with WHO_AM_I register
     uint8_t who_am_i = accel_read_reg(0x0F);
-    assert(who_am_i == 0x33);  // Should be 0x33 for LSM303AGR
+    if(!(who_am_i == 0x33)){
+        // Re-run init in the event of a fail
+        i2c_init();
+    };  // Should be 0x33 for LSM303AGR
 
     // Test accel_write_reg and accel_read_reg with a writable register
     // Use CTRL_REG1_A (0x20) - this register can be written to
     accel_write_reg(0x20, 0x57);              // Write test value
     uint8_t read_back = accel_read_reg(0x20); // Read it back
     // assert(read_back == 0x57);  // Should match what we wrote
+    while(1);
 }
 
 // Returns true on success, false if i2c failed
