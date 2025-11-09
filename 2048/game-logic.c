@@ -14,36 +14,36 @@ void game_clear(GameState *gs);
 void game_init(GameState *gs) {
 
     // Ensure game state is clear
-    game_clear(&gs);
+    game_clear(gs);
 
     // Generate 4 random coordinates
     int r1 = rand() % 4;
     int c1 = rand() % 4;
-    
+
     int r2, c2;
-    while ((r1 == r2) && (c1 == c2)){       //  While coordinates match, try generating new ones
+    do { //  While coordinates match, try generating new ones
         // Generate 4 random coordinates
-        int r2 = rand() % 4;
-        int c2 = rand() % 4;
-    }
+        r2 = rand() % 4;
+        c2 = rand() % 4;
+    } while ((r1 == r2) && (c1 == c2));
 
     // Assign values to the blocks at these coordinates
-    gs->game_board[r1][c1] = 2;             // First block guarenteed to be 2 
+    gs->game_board[r1][c1] = 2; // First block guaranteed to be 2
     int proc = rand() % 100;
     uint8_t value_2;
-    if (proc < 80){
-        value_2 = 2;                        // 80% chance of 2 for second block
-    }else{
-        value_2 = 4;                        // 20% chance of 4 for second block
+    if (proc < 80) {
+        value_2 = 2; // 80% chance of 2 for second block
+    } else {
+        value_2 = 4; // 20% chance of 4 for second block
     }
     gs->game_board[r2][c2] = value_2;
 }
 
 // Clears all game_board cells to zero and resets score
-void game_clear(GameState * gs){
+void game_clear(GameState *gs) {
     int i, j;
-    for (i = 0; i < 4; i++){
-        for (j = 0; j < 4; j++){
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
             gs->game_board[i][j] = 0;
         }
     }
@@ -96,7 +96,7 @@ void game_clear(GameState * gs){
 
 // Cascade blocks up, combining equal powers
 void game_move_up(GameState *gs) {
-    uint16_t smush_flag;
+    uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
         switch (level) {
@@ -112,7 +112,7 @@ void game_move_up(GameState *gs) {
 
 // Cascade blocks down, combining equal powers
 void game_move_down(GameState *gs) {
-    uint16_t smush_flag;
+    uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
         switch (level) {
@@ -128,7 +128,7 @@ void game_move_down(GameState *gs) {
 
 // Cascade blocks left, combining equal powers
 void game_move_left(GameState *gs) {
-    uint16_t smush_flag;
+    uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
         switch (level) {
@@ -144,7 +144,7 @@ void game_move_left(GameState *gs) {
 
 // Cascade blocks right, combining equal powers
 void game_move_right(GameState *gs) {
-    uint16_t smush_flag;
+    uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
         switch (level) {
