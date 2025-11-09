@@ -1,17 +1,14 @@
+#include "include/game-logic.h"
 #include <stdint.h>
 #include <stdlib.h>
-
-typedef struct {
-    uint8_t game_board[4][4]; // 4x4 Matrix of powers of 2 corresponing to the
-                              // value in that position as 2^(i,j)
-    uint32_t score;           // Score
-} GameState;
+#include <time.h>
 
 void game_clear(GameState *gs);
 
 // Initialize game board. This places two blocks on the board, one a 2-block and
 // the other a 4-block or a 2-block
 void game_init(GameState *gs) {
+    srand(time(NULL));
 
     // Ensure game state is clear
     game_clear(gs);
@@ -28,13 +25,13 @@ void game_init(GameState *gs) {
     } while ((r1 == r2) && (c1 == c2));
 
     // Assign values to the blocks at these coordinates
-    gs->game_board[r1][c1] = 2; // First block guaranteed to be 2
+    gs->game_board[r1][c1] = 1; // First block guaranteed to be 2
     int proc = rand() % 100;
     uint8_t value_2;
     if (proc < 80) {
-        value_2 = 2; // 80% chance of 2 for second block
+        value_2 = 1; // 80% chance of 2 for second block
     } else {
-        value_2 = 4; // 20% chance of 4 for second block
+        value_2 = 2; // 20% chance of 4 for second block
     }
     gs->game_board[r2][c2] = value_2;
 }
@@ -61,6 +58,7 @@ void game_clear(GameState *gs) {
                  * from tile */                                                \
                 *onto_tile = *from_tile;                                       \
                 *from_tile = 0;                                                \
+                gs->static_mask |= 1 << ((from * 4) + i);                      \
             } else if (*onto_tile == *from_tile) {                             \
                 /*If the tiles are the same, add one to the onto and clear     \
                  * from */                                                     \
@@ -68,6 +66,7 @@ void game_clear(GameState *gs) {
                 gs->score += 1 << *onto_tile;                                  \
                 *from_tile = 0;                                                \
                 smush_flag |= 1 << ((onto * 4) + i);                           \
+                gs->static_mask |= 1 << ((from * 4) + i);                      \
             }                                                                  \
         }                                                                      \
     }
@@ -83,6 +82,7 @@ void game_clear(GameState *gs) {
                  * from tile */                                                \
                 *onto_tile = *from_tile;                                       \
                 *from_tile = 0;                                                \
+                gs->static_mask |= 1 << ((i * 4) + from);                      \
             } else if (*onto_tile == *from_tile) {                             \
                 /*If the tiles are the same, add one to the onto and clear     \
                  * from */                                                     \
@@ -90,6 +90,7 @@ void game_clear(GameState *gs) {
                 gs->score += 1 << *onto_tile;                                  \
                 *from_tile = 0;                                                \
                 smush_flag |= 1 << ((i * 4) + onto);                           \
+                gs->static_mask |= 1 << ((i * 4) + from);                      \
             }                                                                  \
         }                                                                      \
     }
@@ -156,4 +157,47 @@ void game_move_right(GameState *gs) {
             move_horizontal(1, 0);
         }
     }
+}
+
+struct Coord status[16];
+
+void game_new_random_tile(GameState *gs) {
+    int y, x;
+    uint32_t status_len = 0;
+    for (y = 0; y < 4; y++) {
+        for (x = 0; x < 4; x++) {
+            if (gs->game_board[y][x] == 0) {
+                // set i and j in the status
+                status[status_len++] = (struct Coord) {
+                    .y = y,
+                    .x = x,
+                };
+            }
+        }
+    }
+
+    uint8_t index = rand() % status_len;
+
+    struct Coord new_tile = status[index];
+    gs->new_tile_loc = new_tile;
+    gs->game_board[new_tile.y][new_tile.x] = ((rand() % 100 < 70) ? 1 : 2);
+}
+
+void game_move(GameState *gs, enum GameMoveDirection direction) {
+    switch (direction) {
+    case MOVE_UP:
+        game_move_up(gs);
+        break;
+    case MOVE_LEFT:
+        game_move_left(gs);
+        break;
+    case MOVE_RIGHT:
+        game_move_right(gs);
+        break;
+    case MOVE_DOWN:
+        game_move_down(gs);
+        break;
+    }
+
+    game_new_random_tile(gs);
 }
