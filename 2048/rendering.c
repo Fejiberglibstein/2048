@@ -251,22 +251,40 @@ uint16_t tiles[13][16] = {
     },
 };
 
+MatrixColor tile_colors[13];
+
 void render_tile(uint8_t x, uint8_t y, uint8_t tile_num) {
     int i, j;
 
-    MatrixColor colors[2] = {matrix_color(10, 0, 0), matrix_color(15, 15, 15)};
+    MatrixColor colors[3] = {
+        tile_colors[tile_num - 1],
+        matrix_color(0, 0, 0),
+        matrix_color(0, 0, 0),
+    };
 
     for (i = 0; i < 16; i++) {
-        uint16_t row = tiles[tile_num][i];  // row number 
-        for (j = 0; j < 16; j++) {  // bit number 
-            uint16_t mask = 1 << (15 - j);  // starting mask from MSB
-            int bit_value;
-            if (row & mask) {  // mask specific bit
-                bit_value = 1;
-            } else {
-                bit_value = 0;
+        uint16_t row = tiles[tile_num - 1][i]; // row number
+        for (j = 0; j < 16; j++) {             // bit number
+            uint16_t mask = 1 << (15 - j);     // starting mask from MSB
+            int bit_value = (row & mask) ? 1 : 0;
+            if (i % 15 == 0 && j % 15 == 0) {
+                bit_value = 2;
             }
-            matrix_draw_pixel(colors[bit_value], x + j, y + i); 
+            matrix_draw_pixel(colors[bit_value], x + j, y + i);
         }
     }
+}
+
+void render_init_colors() {
+    tile_colors[0] = matrix_color(13, 7, 1);
+    tile_colors[1] = matrix_color(13, 3, 0);
+    tile_colors[2] = matrix_color(9, 3, 0);
+    tile_colors[3] = matrix_color(15, 2, 0);
+    tile_colors[4] = matrix_color(15, 1, 0);
+    tile_colors[5] = matrix_color(15, 0, 0);
+    tile_colors[6] = matrix_color(10, 15, 0);
+    tile_colors[7] = matrix_color(10, 15, 0);
+    tile_colors[8] = matrix_color(10, 15, 0);
+    tile_colors[9] = matrix_color(1, 0, 15);
+    tile_colors[10] = matrix_color(8, 0, 15);
 }
