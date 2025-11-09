@@ -252,12 +252,21 @@ uint16_t tiles[13][16] = {
 };
 
 void render_tile(uint8_t x, uint8_t y, uint8_t tile_num) {
-    int i, j, bit;
+    int i, j;
 
     MatrixColor colors[2] = {matrix_color(10, 0, 0), matrix_color(15, 15, 15)};
 
     for (i = 0; i < 16; i++) {
-        for (j = 0, bit = 16; j < 16; j++, bit >>= 1) {
+        uint16_t row = tiles[tile_num][i];  // row number 
+        for (j = 0; j < 16; j++) {  // bit number 
+            uint16_t mask = 1 << (15 - j);  // starting mask from MSB
+            int bit_value;
+            if (row & mask) {  // mask specific bit
+                bit_value = 1;
+            } else {
+                bit_value = 0;
+            }
+            matrix_draw_pixel(colors[bit_value], x + j, y + i); 
         }
     }
 }
