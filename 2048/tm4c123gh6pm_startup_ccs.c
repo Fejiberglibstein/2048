@@ -108,7 +108,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // Watchdog timer
     timer_0_handler,                      // Timer 0 subtimer A
     IntDefaultHandler,                      // Timer 0 subtimer B
-    IntDefaultHandler,                      // Timer 1 subtimer A
+    timer_3_handler,                      // Timer 1 subtimer A
     IntDefaultHandler,                      // Timer 1 subtimer B
     timer_2_handler,                      // Timer 2 subtimer A
     IntDefaultHandler,                      // Timer 2 subtimer B

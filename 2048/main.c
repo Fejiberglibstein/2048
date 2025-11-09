@@ -14,6 +14,15 @@ int main(void) {
     game_timer_init();
     game_init(&gs);
 
+    int i;
+
+    for (i = 0; i < 10000; i++)  {
+        __asm__("nop");
+    }
+
+    game_move(&gs, MOVE_UP);
+
+
     for (;;)
         ;
 }
