@@ -300,3 +300,4 @@ void render_init_colors() {
     tile_colors[10] = matrix_color(1, 13, 11); // 2048
     tile_colors[11] = matrix_color(0, 14, 13); // 4096
     tile_colors[12] = matrix_color(0, 15, 15); // 819}
+}
