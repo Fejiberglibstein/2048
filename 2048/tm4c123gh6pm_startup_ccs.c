@@ -59,6 +59,7 @@ extern uint32_t __STACK_TOP;
 void timer_3_handler(void);
 void timer_2_handler(void);
 void timer_0_handler(void);
+void gpio_port_c_handler(void);
 
 //*****************************************************************************
 //
@@ -89,7 +90,7 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
-    IntDefaultHandler,                      // GPIO Port C
+    gpio_port_c_handler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D
     IntDefaultHandler,                      // GPIO Port E
     IntDefaultHandler,                      // UART0 Rx and Tx

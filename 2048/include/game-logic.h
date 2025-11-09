@@ -32,9 +32,9 @@ void game_move_left(GameState *gs);
 void game_move_right(GameState *gs);
 
 enum GameMoveDirection {
-    MOVE_UP,
     MOVE_LEFT,
     MOVE_RIGHT,
+    MOVE_UP,
     MOVE_DOWN,
 };
 
