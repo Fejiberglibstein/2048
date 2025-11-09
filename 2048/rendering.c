@@ -287,15 +287,16 @@ void render_clear_tile(uint8_t x, uint8_t y) {
 }
 
 void render_init_colors() {
-    tile_colors[0] = matrix_color(13, 7, 1);
-    tile_colors[1] = matrix_color(13, 3, 0);
-    tile_colors[2] = matrix_color(9, 3, 0);
-    tile_colors[3] = matrix_color(15, 2, 0);
-    tile_colors[4] = matrix_color(15, 1, 0);
-    tile_colors[5] = matrix_color(15, 0, 0);
-    tile_colors[6] = matrix_color(10, 15, 0);
-    tile_colors[7] = matrix_color(10, 15, 0);
-    tile_colors[8] = matrix_color(10, 15, 0);
-    tile_colors[9] = matrix_color(1, 0, 15);
-    tile_colors[10] = matrix_color(8, 0, 15);
-}
+    tile_colors[0] = matrix_color(15, 15, 1);  // 2
+    tile_colors[1] = matrix_color(13, 14, 1);  // 4
+    tile_colors[2] = matrix_color(11, 13, 1);  // 8
+    tile_colors[3] = matrix_color(9, 12, 2);   // 16
+    tile_colors[4] = matrix_color(7, 11, 3);   // 32
+    tile_colors[5] = matrix_color(6, 10, 4);   // 64
+    tile_colors[6] = matrix_color(5, 9, 5);    // 128
+    tile_colors[7] = matrix_color(4, 10, 6);   // 256
+    tile_colors[8] = matrix_color(3, 11, 7);   // 512
+    tile_colors[9] = matrix_color(2, 12, 9);   // 1024
+    tile_colors[10] = matrix_color(1, 13, 11); // 2048
+    tile_colors[11] = matrix_color(0, 14, 13); // 4096
+    tile_colors[12] = matrix_color(0, 15, 15); // 819}
