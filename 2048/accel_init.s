@@ -68,7 +68,8 @@ accel_init:
     orr r1, r1, #0x33000000  ; set PMC6=3 and PMC7=3 for I2C0 function
     str r1, [r4]
 
-    ; Initialize I2C master ( write 0x10 )
+
+   ; Initialize I2C master ( write 0x10 )
 
     li r0, I2C_1_base_addr  ; I2C module 1 base address
 
@@ -79,18 +80,22 @@ accel_init:
 
     ; Set SCL speed ( I2CMTPR )
     add r4, r0, #I2C_MTPR
-    mov r1, #39  ; TPR = 39 for 100kHz SCL for 80MHz system clock
+    mov r1, #((16*1000000/(2*(6+4)*100000))-1)  ; TPR = 39 for 100kHz SCL for 80MHz system clock
     str r1, [r4]
+    
+    pop {r4-r12, lr}
+    BX lr
+    
 
     ; Enable I2C module
 
 
 
-    ; Read WHO_AM_I
+   ; Read WHO_AM_I
     ; Write register address
 WHO_AM_I:
 
-	BL delay
+	;BL delay
 
     add r4, r0, #I2C_MSA
     mov r1, #0x32  ; LSM303AGR write address (0x19 << 1)
@@ -101,12 +106,12 @@ WHO_AM_I:
     strb r1, [r4]
     
     add r4, r0, #I2C_MCS
-    mov r1, #0x07  ; START + RUN + STOP 
+    mov r1, #0x03  ; START + RUN
     str r1, [r4]
     
 wait_write:
     ldr r1, [r4]
-    tst r1, #0x01  ; check BUSBUSY bit
+    tst r1, #0x040  ; check BUSBUSY bit
     bne wait_write
     
     ; Read data
@@ -120,7 +125,7 @@ wait_write:
     
 wait_read:
     ldr r1, [r4]
-    tst r1, #0x01  ; check BUSY bit
+    tst r1, #0x040  ; check BUSY bit
     bne wait_read
     
     ; Read WHO_AM_I value (should be 0x33)
@@ -130,7 +135,10 @@ wait_read:
     cmp r5, #0x33
     bne WHO_AM_I
 
-	pop {r4-r12, pc}
+    pop {r4-r12, lr}
+    BX lr
+
+
 
 
 
@@ -146,8 +154,7 @@ loop:
 	subs r12, r12, #1
 	bne loop
 
-	pop {r4-r12, lr}
-	mov pc, lr
+
 
 
     .end
