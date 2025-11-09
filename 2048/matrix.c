@@ -1,3 +1,4 @@
+#include "include/matrix.h"
 #include "include/tiva.h"
 #include "stdint.h"
 
@@ -8,10 +9,17 @@ typedef volatile struct {
     uint32_t unused;
 } DmaChannel;
 
-DmaChannel DmaControlTable[15] __attribute__((aligned(1024)));
-uint8_t MatrixData[64 * 32 * 4] __attribute__((aligned(32)));
 uint8_t MatrixClockPulseByte = 0b10000000; // Clock bit high
 uint8_t MatrixResetByte = 0b01110111;      // RGB high and clock low
+
+DmaChannel DmaControlTable[15] __attribute__((aligned(1024)));
+
+uint8_t MatrixData1[64 * 32 * 4] __attribute__((aligned(32)));
+uint8_t MatrixData2[64 * 32 * 4] __attribute__((aligned(32)));
+uint8_t *MatrixData[2] = {
+    MatrixData1,
+    MatrixData2,
+};
 
 void matrix_init() {
     //                                                                        //
@@ -56,7 +64,7 @@ void matrix_init() {
     chan = &DmaControlTable[channel_number];
     *DMA_ALTCLR |= 1 << channel_number;
     *DMA_CHMAP0 |= map_select << (channel_number * 4);
-    chan->src_buffer = &MatrixData;
+    chan->src_buffer = &MatrixData1; // Start with the first buffer
     chan->dest_buffer = (void *)(gpio_port_b | (clk_and_rgb_pins_mask << 2));
     chan->control_word = (
           0b11 << 30   // No destination increment
@@ -130,4 +138,33 @@ void matrix_init() {
     *GPTM_TAMR(timer_0) |= 0x1;  // Set timer to be oneshot
     *GPTM_IMR(timer_0) |= 0x01;  // Configure timer to use interrupts
     *REG(0xE000E100) |= 1 << 19; // Timer 0 is 19th offset in interrupt vtable
+}
+
+MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
+    MatrixColor co = 0;
+    // Format of color:     
+    // (0000  0 b8 g8 r8  0000  0 b4 g4 r4  0000  0 b2 g2 r2  0000  0 b1 g1 r1)
+
+
+    // clang-format off
+    // Set r
+    co |= (((r & 1) >> 0) << 0)
+        | (((r & 2) >> 1) << 8)
+        | (((r & 4) >> 2) << 16)
+        | (((r & 8) >> 3) << 24);
+
+    // Set g
+    co |= (((g & 1) >> 0) << 1)
+        | (((g & 2) >> 1) << 9)
+        | (((g & 4) >> 2) << 17)
+        | (((g & 8) >> 3) << 25);
+
+    // Set b
+    co |= (((g & 1) >> 0) << 2)
+        | (((g & 2) >> 1) << 10)
+        | (((g & 4) >> 2) << 18)
+        | (((g & 8) >> 3) << 26);
+    // clang-format on
+
+    return co;
 }
