@@ -11,17 +11,32 @@ GameState gs;
 int main(void) {
     matrix_init();
     render_init_colors();
-    game_timer_init();
     game_init(&gs);
+    render_board(&gs);
+    render_board(&gs);
 
     int i;
 
-    for (i = 0; i < 10000; i++)  {
-        __asm__("nop");
+    for (i = 0; i < 6666666; i++)  {
+        __asm__("\n\tnop");
     }
-
     game_move(&gs, MOVE_UP);
 
+    // for (i = 0; i < 6666666; i++)  {
+    //     __asm__("\n\tnop");
+    // }
+    // game_move(&gs, MOVE_LEFT);
+    //
+    // for (i = 0; i < 6666666; i++)  {
+    //     __asm__("\n\tnop");
+    // }
+    // game_move(&gs, MOVE_DOWN);
+    //
+    // for (i = 0; i < 6666666; i++)  {
+    //     __asm__("\n\tnop");
+    // }
+    // game_move(&gs, MOVE_RIGHT);
+    //
 
     for (;;)
         ;

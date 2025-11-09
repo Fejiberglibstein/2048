@@ -1,4 +1,6 @@
 #include "include/game-logic.h"
+#include "include/rendering.h"
+#include "include/matrix.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
@@ -127,8 +129,8 @@ void game_move_down(GameState *gs) {
     }
 }
 
-// Cascade blocks left, combining equal powers
-void game_move_left(GameState *gs) {
+// Cascade blocks right, combining equal powers
+void game_move_right(GameState *gs) {
     uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
@@ -143,8 +145,8 @@ void game_move_left(GameState *gs) {
     }
 }
 
-// Cascade blocks right, combining equal powers
-void game_move_right(GameState *gs) {
+// Cascade blocks left, combining equal powers
+void game_move_left(GameState *gs) {
     uint16_t smush_flag = 0;
     int i, level;
     for (level = 0; level < 3; level++) {
@@ -200,4 +202,21 @@ void game_move(GameState *gs, enum GameMoveDirection direction) {
     }
 
     game_new_random_tile(gs);
+
+    render_board(gs);
+}
+
+
+void render_board(GameState *gs) {
+    int x, y;
+    for (x = 0; x < 4; x++) {
+        for (y = 0; y < 4; y++) {
+            if (gs->game_board[y][x] != 0) {
+                render_tile(x * 16, y * 16, gs->game_board[y][x]);
+            } else {
+                render_clear_tile(x * 16, y * 16);
+            }
+        }
+    }
+    matrix_swap_bufs();
 }

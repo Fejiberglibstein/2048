@@ -276,18 +276,15 @@ void render_tile(uint8_t x, uint8_t y, uint8_t tile_num) {
 }
 
 void render_clear_tile(uint8_t x, uint8_t y) {
-    int i, j;
-
     MatrixColor black = matrix_color(0, 0, 0);
-
+    int i, j;
     for (i = 0; i < 16; i++) {
-        for (j = 0; j < 16; j++) {             // bit number
-            uint16_t mask = 1 << (15 - j);     // starting mask from MSB
+        for (j = 0; j < 16; j++) {         // bit number
+            uint16_t mask = 1 << (15 - j); // starting mask from MSB
             matrix_draw_pixel(black, x + j, y + i);
         }
     }
 }
-
 
 void render_init_colors() {
     tile_colors[0] = matrix_color(13, 7, 1);

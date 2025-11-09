@@ -39,3 +39,5 @@ enum GameMoveDirection {
 };
 
 void game_move(GameState *gs, enum GameMoveDirection direction);
+
+void render_board(GameState *gs);
