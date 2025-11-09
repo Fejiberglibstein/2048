@@ -30,7 +30,7 @@ li .macro reg, data
 U0FR: 	.equ 0x18
 
 
-art_init:
+uart_init:
 	PUSH {r4-r12,lr}	; Spill registers to stack
 
           				; Your code is placed here
@@ -50,15 +50,15 @@ art_init:
 	MOV r1, #0
 	STR r1, [r0]
 
-
+	; here is 2baud rate
 	MOV r0, #0xC024
 	MOVT r0, #0x4000
-	MOV r1, #8
+	MOV r1, #36
 	STR r1, [r0]
 
 	MOV r0, #0xC028
 	MOVT r0, #0x4000
-	MOV r1, #44
+	MOV r1, #11
 	STR r1, [r0]
 
 	MOV r0, #0xCFC8

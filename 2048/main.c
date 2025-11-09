@@ -5,6 +5,8 @@
 #include "include/tiva.h"
 
 void game_timer_init();
+extern char read_character();
+extern void uart_init();
 
 GameState gs;
 
@@ -60,9 +62,8 @@ void gpio_port_c_handler() {
     last_interrupt = timer;
 }
 
-extern char read_char();
-
 int main(void) {
+    uart_init();
     matrix_init();
     render_init_colors();
     game_init(&gs);
@@ -71,7 +72,7 @@ int main(void) {
     // interrupt_init();
 
     for (;;) {
-        char c = read_char();
+        char c = read_character();
 
         enum GameMoveDirection dir;
         switch (c) {
