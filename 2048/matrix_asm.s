@@ -1,7 +1,6 @@
 .text
 
-.ref matrix_get_wbuf 
-.def matrix_draw_pixel
+	.ref matrix_get_wbuf 
 
 ;; Set a pixel in the matrix
 ;;
@@ -10,8 +9,9 @@
 ;;     (0000  0 b8 g8 r8  0000  0 b4 g4 r4  0000  0 b2 g2 r2  0000  0 b1 g1 r1)
 ;; r1: x coordinate
 ;; r2: y coordinate
+	.def matrix_draw_pixel
 matrix_draw_pixel:
-	push {r4, lr, fp}
+	push {r4, lr, r11}
 	push {r0-r3}
 	bl matrix_get_wbuf
 	mov r4, r0 ; r4 contains the write buffer
@@ -33,6 +33,6 @@ matrix_draw_pixel:
 		lsr r0, r0, #8       ; Shift to get the next color
 	.endloop
 
-	pop {r4, lr, fp}
+	pop {r4, lr, r11}
 	bx lr
 .end

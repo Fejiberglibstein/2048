@@ -1,6 +1,6 @@
 #include "include/matrix.h"
-#include "stdbool.h"
 #include "include/tiva.h"
+#include "stdbool.h"
 #include "stdint.h"
 
 typedef volatile struct {
@@ -31,7 +31,7 @@ struct {
     uint8_t current_row;
     // Will be 0 or 1 since there are 2 buffers
     uint8_t current_buf;
-} MatrixState __attribute__((aligned(32)));
+} MatrixState __attribute__((aligned(32))) = {};
 
 void matrix_init() {
     //                                                                        //
@@ -188,16 +188,17 @@ void timer_0_handler(void) {
     *oe_pin = 1 << 5;    // Set oe high (turn off leds)
     *latch_pin = 1 << 0; // Set latch pin high
 
+    uint32_t old_row = MatrixState.current_row;
     if (MatrixState.bitplane_level == 0) {
         // Increment by 2 since address pin are shifted
         MatrixState.current_row += 2;
         if (MatrixState.current_row >= 32) {
             MatrixState.current_row = 0;
             // Switch to the alternate buffer
-            MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
+            // matrix_swap_bufs();
         }
     }
-    *address_pins = MatrixState.current_row;
+    *address_pins = old_row;
 
     *oe_pin = 0;    // Set oe low (turn on leds)
     *latch_pin = 0; // Set latch pin low
@@ -205,7 +206,7 @@ void timer_0_handler(void) {
     // Update the src buffer
     DmaControlTable[4].src_buffer = (
         matrix_get_rbuf()// Base buffer addr
-        + (MatrixState.current_row * 64 * 4) // offset by current row
+        + ((MatrixState.current_row >> 1) * 64 * 4) // offset by current row
         + 63                                 // Go to the end of the buffer
         + (MatrixState.bitplane_level << 6)  // Offset by the bitlevel
     );
@@ -247,4 +248,8 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
         | (((g & 8) >> 3) << 26);
     // clang-format on
     return co;
+}
+
+void matrix_swap_bufs() {
+    MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
 }
