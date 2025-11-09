@@ -1,3 +1,4 @@
+#include "include/matrix.h"
 #include "stdint.h"
 
 uint16_t tiles[13][16] = {
@@ -247,10 +248,16 @@ uint16_t tiles[13][16] = {
         0b0000000000000000,
         0b0000000000000000,
         0b0000000000000000,
-    }
+    },
 };
 
+void render_tile(uint8_t x, uint8_t y, uint8_t tile_num) {
+    int i, j, bit;
 
+    MatrixColor colors[2] = {matrix_color(10, 0, 0), matrix_color(15, 15, 15)};
 
-
-
+    for (i = 0; i < 16; i++) {
+        for (j = 0, bit = 16; j < 16; j++, bit >>= 1) {
+        }
+    }
+}
