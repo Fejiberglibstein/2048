@@ -298,3 +298,39 @@
 #define DMA_PCellID1 REG(0x400FF000 + 0xFF4) // DMA PrimeCell Identification 1 (p. 646)
 #define DMA_PCellID2 REG(0x400FF000 + 0xFF8) // DMA PrimeCell Identification 2 (p. 647)
 #define DMA_PCellID3 REG(0x400FF000 + 0xFFC) // DMA PrimeCell Identification 3 (p. 648)
+                                             //
+
+//                                                                            //
+//                               SSI registers                                //
+//                                                                            //
+
+#define ssi0 0x40008000
+#define ssi1 0x40009000
+#define ssi2 0x4000A000
+#define ssi3 0x4000B000
+
+
+#define SSI_ICR0(p)      REG(p + 0x000) // SSI Control 0
+#define SSI_ICR1(p)      REG(p + 0x004) // SSI Control 1
+#define SSI_DR(p)        REG(p + 0x008) // SSI Data
+#define SSI_SR(p)        REG(p + 0x00C) // SSI Status
+#define SSI_CPSR(p)      REG(p + 0x010) // SSI Clock Prescale
+#define SSI_IM(p)        REG(p + 0x014) // SSI Interrupt Mask
+#define SSI_RIS(p)       REG(p + 0x018) // SSI Raw Interrupt Status
+#define SSI_MIS(p)       REG(p + 0x01C) // SSI Masked Interrupt Status
+#define SSI_ICR(p)       REG(p + 0x020) // SSI Interrupt Clear
+#define SSI_DMACTL(p)    REG(p + 0x024) // SSI DMA Control
+#define SSI_CC(p)        REG(p + 0xFC8) // SSI Clock Configuration
+#define SSI_PeriphID4(p) REG(p + 0xFD0) // SSI Peripheral Identification 4
+#define SSI_PeriphID5(p) REG(p + 0xFD4) // SSI Peripheral Identification 5
+#define SSI_PeriphID6(p) REG(p + 0xFD8) // SSI Peripheral Identification 6
+#define SSI_PeriphID7(p) REG(p + 0xFDC) // SSI Peripheral Identification 7
+#define SSI_PeriphID0(p) REG(p + 0xFE0) // SSI Peripheral Identification 0
+#define SSI_PeriphID1(p) REG(p + 0xFE4) // SSI Peripheral Identification 1
+#define SSI_PeriphID2(p) REG(p + 0xFE8) // SSI Peripheral Identification 2
+#define SSI_PeriphID3(p) REG(p + 0xFEC) // SSI Peripheral Identification 3
+#define SSI_PCellID0(p)  REG(p + 0xFF0) // SSI PrimeCell Identification 0
+#define SSI_PCellID1(p)  REG(p + 0xFF4) // SSI PrimeCell Identification 1
+#define SSI_PCellID2(p)  REG(p + 0xFF8) // SSI PrimeCell Identification 2
+#define SSI_PCellID3(p)  REG(p + 0xFFC) // SSI PrimeCell Identification 3
+
