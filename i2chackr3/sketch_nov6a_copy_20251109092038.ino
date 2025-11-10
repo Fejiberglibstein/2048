@@ -5,14 +5,25 @@ const int MPU = 0x68;
 int16_t AcX, AcY, AcZ;
 int AcXcal, AcYcal, AcZcal;
 
-const int RIGHT_PIN = 2;
-const int LEFT_PIN = 4;
-const int UP_PIN = 6;
-const int DOWN_PIN = 8; 
+const int RIGHT_PIN = 13;
+const int LEFT_PIN = 12;
+const int UP_PIN = 11;
+const int DOWN_PIN = 10; 
+
+const int RIGHT_TEST_PIN = 2;
+const int LEFT_TEST_PIN = 4;
+const int UP_TEST_PIN = 6;
+const int DOWN_TEST_PIN = 8;
 
 bool tilted = false;
+int lastTilt = 0;       // Last tilt integer
 unsigned long lastTiltTime = 0;
 const unsigned long cooldown = 500; // ms between tilt detections
+const int FLAT = 0;
+const int RIGHT = 1;
+const int LEFT = 2;
+const int UP = 3;
+const int DOWN = 4;
 
 void setup() {
   Wire.begin();
@@ -31,6 +42,11 @@ void setup() {
   pinMode(LEFT_PIN, OUTPUT);
   pinMode(UP_PIN, OUTPUT);
   pinMode(DOWN_PIN, OUTPUT);
+
+  pinMode(RIGHT_TEST_PIN, OUTPUT);
+  pinMode(LEFT_TEST_PIN, OUTPUT);
+  pinMode(UP_TEST_PIN, OUTPUT);
+  pinMode(DOWN_TEST_PIN, OUTPUT);
 
 }
 
@@ -53,25 +69,41 @@ void loop() {
   // --- Tilt Detection ---
   if (!tilted && (now - lastTiltTime >= cooldown)) {
     if (yVal >= 900) {
-      Serial.println("Right");
-      digitalWrite(RIGHT_PIN, HIGH);
-      tilted = true;
-      lastTiltTime = now;
+      if (lastTilt != RIGHT){
+          Serial.println("Right");
+          digitalWrite(RIGHT_PIN, HIGH);
+          digitalWrite(RIGHT_TEST_PIN, HIGH);
+          tilted = true;
+          lastTiltTime = now;
+          lastTilt = RIGHT;
+      }
     } else if (yVal <= -900) {
-      Serial.println("Left");
-      digitalWrite(LEFT_PIN, HIGH);
-      tilted = true;
-      lastTiltTime = now;
+      if (lastTilt != LEFT){
+        Serial.println("Left");
+        digitalWrite(LEFT_PIN, HIGH);
+        digitalWrite(LEFT_TEST_PIN, HIGH);
+        tilted = true;
+        lastTiltTime = now;
+        lastTilt = LEFT;
+      }
     } else if (zVal >= 900) {
-      Serial.println("Down");
-      digitalWrite(DOWN_PIN, HIGH);
-      tilted = true;
-      lastTiltTime = now;
+      if (lastTilt != DOWN){
+        Serial.println("Down");
+        digitalWrite(DOWN_PIN, HIGH);
+        digitalWrite(DOWN_TEST_PIN, HIGH);
+        tilted = true;
+        lastTiltTime = now;
+        lastTilt = DOWN;
+      }
     } else if (zVal <= -900) {
-      Serial.println("Up");
-      digitalWrite(UP_PIN, HIGH);
-      tilted = true;
-      lastTiltTime = now;
+      if (lastTilt != UP){
+        Serial.println("Up");
+        digitalWrite(UP_PIN, HIGH);
+        digitalWrite(UP_TEST_PIN, HIGH);
+        tilted = true;
+        lastTiltTime = now;
+        lastTilt = UP;
+      }
     }
   }
 
@@ -79,11 +111,16 @@ void loop() {
   if (tilted) {
     if (abs(yVal) < 800 && abs(zVal) < 800) {
       tilted = false; // re-arm only when flat
+        lastTilt = FLAT;
         // don't reset lastTiltTime here — let cooldown finish fully
         digitalWrite(RIGHT_PIN, LOW);
         digitalWrite(LEFT_PIN, LOW);
         digitalWrite(UP_PIN, LOW);
         digitalWrite(DOWN_PIN, LOW);
+        digitalWrite(RIGHT_TEST_PIN, LOW);
+        digitalWrite(LEFT_TEST_PIN, LOW);
+        digitalWrite(UP_TEST_PIN, LOW);
+        digitalWrite(DOWN_TEST_PIN, LOW);
     }
   }
 
