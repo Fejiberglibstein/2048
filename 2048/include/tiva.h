@@ -1,5 +1,10 @@
 #define REG(p) ((volatile uint32_t *)(p))
 
+#define assert(cond)                                                           \
+    if (!(cond))                                                               \
+        while (1)                                                              \
+            ;
+
 // regex my beloved:
 // '<,'>s/\v(\d+)(.*)(0x....\.....|-)(RW|WO|WO1|RO|W1C|-)GPIO(.*)0x(.*)/#define GPIO_\5(p) REG(p + 0x\6) \/\/ \2 (p. \1)
 
@@ -226,10 +231,10 @@
 //                               I2C Registers                                //
 //                                                                            //
 
-#define I2C_0 0x40020000
-#define I2C_1 0x40021000
-#define I2C_2 0x40022000
-#define I2C_3 0x40023000
+#define i2c_0 0x40020000
+#define i2c_1 0x40021000
+#define i2c_2 0x40022000
+#define i2c_3 0x40023000
 
 #define I2C_MSA(p) REG(p + 0x000) // I2C Master Slave Address (p. 1019)
 #define I2C_MCS(p) REG(p + 0x004) // I2C Master Control/Status (p. 1020)
@@ -304,10 +309,10 @@
 //                               SSI registers                                //
 //                                                                            //
 
-#define ssi0 0x40008000
-#define ssi1 0x40009000
-#define ssi2 0x4000A000
-#define ssi3 0x4000B000
+#define ssi_0 0x40008000
+#define ssi_1 0x40009000
+#define ssi_2 0x4000A000
+#define ssi_3 0x4000B000
 
 
 #define SSI_ICR0(p)      REG(p + 0x000) // SSI Control 0
