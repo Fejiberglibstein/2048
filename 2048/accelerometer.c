@@ -1,4 +1,5 @@
 #include "include/accelerometer.h"
+#include "include/matrix.h"
 #include "include/tiva.h"
 
 void accel_init() {
@@ -24,11 +25,12 @@ void accel_init() {
     *GPIO_ODR(gpio_port_a) |= 1 << 7;
 
     *I2C_MCR(i2c_1) = 0x00000010; // Enable i2c as master
-    // (16MHz/(2*(6+4)*100000))-1;
     *I2C_MTPR(i2c_1) = (66666666 / (2 * (6 + 4) * 100000)) - 1;
 }
 
 uint8_t accel_read(uint8_t reg_addr) {
+    matrix_pause();
+
     *I2C_MSA(i2c_1) = 0x32;            // Write address with transmit
     *I2C_MDR(i2c_1) = reg_addr;        // Write address
     *I2C_MCS(i2c_1) = 0b00111;         // Set run start, & stop
@@ -41,11 +43,15 @@ uint8_t accel_read(uint8_t reg_addr) {
     while (*I2C_MCS(i2c_1) & (1 << 0)) // Loop while busy bit is high
         ;
     assert((*I2C_MCS(i2c_1) & 0x0E) == 0); // assert no error
+    uint8_t data = *I2C_MDR(i2c_1);
 
-    return *I2C_MDR(i2c_1);
+    matrix_resume();
+    return data;
 }
 
 void accel_write(uint8_t reg_addr, uint8_t data) {
+    matrix_pause();
+
     *I2C_MSA(i2c_1) = 0x32;            // Write address with transmit
     *I2C_MDR(i2c_1) = reg_addr;        // Write address
     *I2C_MCS(i2c_1) = 0b00011;         // Set run & start
@@ -58,9 +64,34 @@ void accel_write(uint8_t reg_addr, uint8_t data) {
     while (*I2C_MCS(i2c_1) & (1 << 0)) // Loop while busy bit is high
         ;
     assert((*I2C_MCS(i2c_1) & 0x0E) == 0); // assert no error
+
+    matrix_resume();
 }
 
+// void accel_get_acceleration(struct AccelerometerData *data) {
+//     uint8_t *buf = (void *)data;
+//
+//     uint8_t addrs[6] = {
+//         ACCEL_OUT_X_L_A,
+//         ACCEL_OUT_X_H_A,
+//         ACCEL_OUT_Y_L_A,
+//         ACCEL_OUT_Y_H_A,
+//         ACCEL_OUT_Z_L_A,
+//         ACCEL_OUT_Z_H_A,
+//     };
+//
+//     int i, j;
+//     for (i = 0; i < 6; i++) {
+//         *buf++ = accel_read(addrs[i]);
+//         for (j = 0; j < 10000; j++) {
+//             __asm__("\tnop");
+//         }
+//     }
+// }
+
 void accel_get_acceleration(struct AccelerometerData *data) {
+    matrix_pause();
+
     *I2C_MSA(i2c_1) = 0x32;                   // Write address with transmit
     *I2C_MDR(i2c_1) = ACCEL_OUT_X_L_A | 0x80; // address with increment
     *I2C_MCS(i2c_1) = 0b00011;                // Set run & start
@@ -96,6 +127,8 @@ void accel_get_acceleration(struct AccelerometerData *data) {
         ;
     assert((*I2C_MCS(i2c_1) & 0x0E) == 0); // assert no error
     *casted++ = *I2C_MDR(i2c_1);
+
+    matrix_resume();
 }
 
 // Configures the accelerometer to cause xyz interrupts on PA2

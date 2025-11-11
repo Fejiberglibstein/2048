@@ -10,4 +10,7 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b);
 void matrix_draw_pixel(MatrixColor color, uint8_t x, uint8_t y);
 void matrix_swap_bufs();
 
+void matrix_pause();
+void matrix_resume();
+
 #endif // _MATRIX_H
