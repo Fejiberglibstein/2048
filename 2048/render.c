@@ -1,5 +1,6 @@
 #include "include/render.h"
 #include "include/matrix.h"
+#include "include/gameplay.h"
 
 uint16_t tile_bitmaps[13][16] = {
     {
@@ -270,4 +271,30 @@ void render_tile(uint8_t x, uint8_t y, uint8_t num) {
             matrix_draw_pixel(colors[bit_value], x + j, y + i);
         }
     }
+}
+
+void clear_tile(uint8_t x, uint8_t y) {
+    int i, j;
+    MatrixColor black = matrix_color(0, 0, 0);
+
+    for (i = 0; i < 16; i++) {
+        for (j = 0; j < 16; j++) {
+            matrix_draw_pixel(black, x + j, y + i);
+        }
+    }
+}
+
+void render_board(GameState *gs) {
+    int i, j;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            if (gs->board[i][j] == 0) {
+                clear_tile(j * 16, i * 16);
+            } else {
+                render_tile(j * 16, i * 16, gs->board[i][j]);
+            }
+        }
+    }
+
+    matrix_swap_bufs();
 }
