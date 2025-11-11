@@ -254,3 +254,17 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
 void matrix_swap_bufs() {
     MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
 }
+
+void matrix_pause() {
+    // Clear TAEN to turn off the timer while it is writing data to the matrix
+    // *GPTM_CTL(timer_2) &= ~0x1; 
+    // // If timer 0 is primed, wait for it to complete
+    // while (*GPTM_CTL(timer_0) & 0x1)
+    //     ;
+}
+
+void matrix_resume() {
+    // Turn Timer 2 back on again. This is guaranteed not to break the one shot
+    // timer since `matrix_pause` waits for the one shot timer to finish
+    // *GPTM_CTL(timer_2) |= 0x1; 
+}
