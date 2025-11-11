@@ -15,7 +15,7 @@ uint8_t MatrixResetByte = 0b01110111;      // RGB high and clock low
 
 DmaChannel DmaControlTable[15] __attribute__((aligned(1024)));
 
-#define oe_pin REG(gpio_port_a | ((1 << 5) << 2))
+#define oe_pin REG(gpio_port_c | ((1 << 5) << 2))
 #define clk_pin REG(gpio_port_b + ((1 << 7) << 2))
 #define rgb_pin REG(gpio_port_b + (0x77 << 2))
 #define rgb_and_clk_pin REG(gpio_port_b + (0xF7 << 2))
@@ -38,15 +38,15 @@ void matrix_init() {
     //                                                                        //
     //                        Initialize GPIO                                 //
     //                                                                        //
-    uint32_t gpio_ports = 0b010011;
+    uint32_t gpio_ports = 0b010110;
     *SYSCTL_RCGCGPIO |= gpio_ports;
     while (*SYSCTL_PRGPIO != gpio_ports)
         ;
 
     uint32_t output_enable_pin_mask = 1 << 5;
-    *GPIO_DIR(gpio_port_a) |= output_enable_pin_mask;    // enable output
-    *GPIO_AFSEL(gpio_port_a) &= ~output_enable_pin_mask; // disable afsel
-    *GPIO_DEN(gpio_port_a) |= output_enable_pin_mask;    // digital enable
+    *GPIO_DIR(gpio_port_c) |= output_enable_pin_mask;    // enable output
+    *GPIO_AFSEL(gpio_port_c) &= ~output_enable_pin_mask; // disable afsel
+    *GPIO_DEN(gpio_port_c) |= output_enable_pin_mask;    // digital enable
 
     uint32_t clk_and_rgb_pins_mask = 0b11110111;        // All pins but pb3
     *GPIO_DIR(gpio_port_b) |= clk_and_rgb_pins_mask;    // enable output
