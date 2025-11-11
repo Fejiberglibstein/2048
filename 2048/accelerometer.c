@@ -1,6 +1,8 @@
 #include "include/accelerometer.h"
+#include "include/gameplay.h"
 #include "include/matrix.h"
 #include "include/tiva.h"
+#include <stdbool.h>
 
 void accel_init() {
     uint8_t i2c_ports = 0b0010;
@@ -159,17 +161,36 @@ void accel_interrupts_init() {
 
     accel_write(ACCEL_CTRL_REG5_A, 0x80); // Reset memory
     accel_write(ACCEL_CTRL_REG1_A, 0x57); // ODR = 5, enable xyz
-    accel_write(ACCEL_CTRL_REG3_A, 0x60); // Enable interrupts for AOI1, AOI2
-    accel_write(ACCEL_CTRL_REG4_A, 0x80); // Block data update for CTRL_REG4
-    accel_write(ACCEL_CTRL_REG5_A, 0x40); // Latch interrupt on Int1
+    accel_write(ACCEL_CTRL_REG2_A, 0x07); // High pass for all interrupts
+    accel_write(ACCEL_CTRL_REG3_A, 0x40); // Interrupts for AOI1, AOI2, & click
+    accel_write(ACCEL_CTRL_REG4_A, 0x80); // Block data update TODO
+    accel_write(ACCEL_CTRL_REG5_A, 0x08); // Latch interrupt on Int1 TODO A
     accel_write(ACCEL_CTRL_REG6_A, 0x02); // interrupts are active low
-    accel_write(ACCEL_INT1_CFG_A, 0x3F);  // all interrupts
-    assert(accel_read(ACCEL_INT1_CFG_A) == 0x3F); // make sure it worked
-    accel_write(ACCEL_INT1_THS_A, 100);
-    accel_write(ACCEL_INT1_DURATION_A, 0x01); // Duration 1
+    accel_write(ACCEL_INT1_CFG_A, 0x01);  // all interrupts
+    accel_write(ACCEL_INT1_THS_A, 255);
+    accel_write(ACCEL_INT1_DURATION_A, 10); // 100 ms debounce
 }
+
+#define ACCEL_INT_Z_HIGH (1 << 5)
+#define ACCEL_INT_Z_LOW (1 << 4)
+#define ACCEL_INT_Y_HIGH (1 << 3)
+#define ACCEL_INT_Y_LOW (1 << 2)
+#define ACCEL_INT_X_HIGH (1 << 1)
+#define ACCEL_INT_X_LOW (1 << 0)
+
+extern GameState gs;
 
 void accelerometer_interrupt_handler(void) {
     *GPIO_ICR(gpio_port_a) |= (1 << 2); // Clear interrupt on pin 2
-    (void)accel_read(ACCEL_INT1_SRC_A);
+    uint8_t int_src = accel_read(ACCEL_INT1_SRC_A);
+
+    if (int_src & ACCEL_INT_Z_LOW) {
+    }
+
+    // clang-format off
+    if (int_src & ACCEL_INT_Y_HIGH) game_move_dir(&gs, MOVE_UP);
+    if (int_src & ACCEL_INT_Y_LOW) game_move_dir(&gs, MOVE_DOWN);
+    if (int_src & ACCEL_INT_X_HIGH) game_move_dir(&gs, MOVE_LEFT);
+    if (int_src & ACCEL_INT_X_LOW) game_move_dir(&gs, MOVE_RIGHT);
+    // clang-format on
 }
