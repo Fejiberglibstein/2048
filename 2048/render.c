@@ -256,9 +256,11 @@ void render_tile(uint8_t x, uint8_t y, uint8_t num) {
     int i, j;
 
     MatrixColor colors[2] = {
-        matrix_color(15, 0, 0),
+        matrix_color(1, 0, 0),
         matrix_color(0, 0, 0),
     };
+
+    colors[0] = matrix_color(num % 14, (14 - (num % 14)), (10 - (num % 10)));
 
     for (i = 0; i < 16; i++) {
         uint16_t row = tile_bitmaps[num - 1][i];

@@ -1,4 +1,6 @@
 #include "include/gameplay.h"
+#include "include/matrix.h"
+#include "include/render.h"
 #include <stdlib.h>
 #include <time.h>
 
@@ -194,4 +196,6 @@ void game_move_dir(GameState *gs, MoveDirection dir) {
     }
 
     game_new_random_tile(gs);
+
+    render_board(gs);
 }
