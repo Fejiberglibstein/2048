@@ -206,7 +206,7 @@ void timer_0_handler(void) {
 
     // Update the src buffer
     DmaControlTable[4].src_buffer = (
-        matrix_get_rbuf()// Base buffer addr
+          matrix_get_rbuf()                         // Base buffer addr
         + ((MatrixState.current_row >> 1) * 64 * 4) // offset by current row
         + 63                                 // Go to the end of the buffer
         + (MatrixState.bitplane_level << 6)  // Offset by the bitlevel
@@ -257,14 +257,14 @@ void matrix_swap_bufs() {
 
 void matrix_pause() {
     // Clear TAEN to turn off the timer while it is writing data to the matrix
-    // *GPTM_CTL(timer_2) &= ~0x1; 
-    // // If timer 0 is primed, wait for it to complete
-    // while (*GPTM_CTL(timer_0) & 0x1)
-    //     ;
+    *GPTM_CTL(timer_2) &= ~0x1; 
+    // If timer 0 is primed, wait for it to complete
+    while (*GPTM_CTL(timer_0) & 0x1)
+        ;
 }
 
 void matrix_resume() {
     // Turn Timer 2 back on again. This is guaranteed not to break the one shot
     // timer since `matrix_pause` waits for the one shot timer to finish
-    // *GPTM_CTL(timer_2) |= 0x1; 
+    *GPTM_CTL(timer_2) |= 0x1; 
 }
