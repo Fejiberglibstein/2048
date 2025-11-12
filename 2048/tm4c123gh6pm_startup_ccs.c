@@ -59,7 +59,8 @@ extern uint32_t __STACK_TOP;
 // void timer_3_handler(void);
 void timer_2_handler(void);
 void timer_0_handler(void);
-// void gpio_port_c_handler(void);
+// void polling_timer(void);
+void accelerometer_interrupt_handler(void);
 
 //*****************************************************************************
 //
@@ -88,7 +89,7 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     IntDefaultHandler,                      // The PendSV handler
     IntDefaultHandler,                      // The SysTick handler
-    IntDefaultHandler,                      // GPIO Port A
+    accelerometer_interrupt_handler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
     IntDefaultHandler,                      // GPIO Port D
