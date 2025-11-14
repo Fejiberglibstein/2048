@@ -133,6 +133,17 @@ void accel_get_acceleration(struct AccelerometerData *data) {
     matrix_resume();
 }
 
+void write_and_assert(uint8_t address, uint8_t value) {
+    accel_write(address, value);
+
+    int i;
+    for (i = 0; i < 10000; i++)
+        __asm__("\tnop");
+
+    uint8_t act_value = accel_read(address);
+    assert(act_value == value);
+}
+
 // Configures the accelerometer to cause xyz interrupts on PA2
 void accel_interrupts_init() {
     uint8_t gpio_ports = 0b00000001; // interrupts is on port a
@@ -161,14 +172,30 @@ void accel_interrupts_init() {
 
     accel_write(ACCEL_CTRL_REG5_A, 0x80); // Reset memory
     accel_write(ACCEL_CTRL_REG1_A, 0x57); // ODR = 5, enable xyz
-    accel_write(ACCEL_CTRL_REG2_A, 0x07); // High pass for all interrupts
-    accel_write(ACCEL_CTRL_REG3_A, 0x40); // Interrupts for AOI1, AOI2, & click
-    accel_write(ACCEL_CTRL_REG4_A, 0x80); // Block data update TODO
-    accel_write(ACCEL_CTRL_REG5_A, 0x08); // Latch interrupt on Int1 TODO A
-    accel_write(ACCEL_CTRL_REG6_A, 0x02); // interrupts are active low
-    accel_write(ACCEL_INT1_CFG_A, 0x01);  // all interrupts
-    accel_write(ACCEL_INT1_THS_A, 255);
-    accel_write(ACCEL_INT1_DURATION_A, 10); // 100 ms debounce
+    accel_write(ACCEL_CTRL_REG4_A, 0x80);
+
+    int i;
+    for (i = 0; i < 10000; i++)
+        __asm__("\tnop"); // Wait for it to turn on
+
+    assert(accel_read(ACCEL_WHO_AM_I_A) == 0x33);
+
+    write_and_assert(ACCEL_CLICK_CFG_A, 0x10);
+    write_and_assert(ACCEL_CLICK_THS_A, 0x0A);
+    write_and_assert(ACCEL_TIME_LIMIT_A, 0x05);
+    write_and_assert(ACCEL_TIME_LATENCY_A, 0x05);
+    write_and_assert(ACCEL_TIME_WINDOW_A, 0x32);
+
+    // accel_write(ACCEL_CTRL_REG3_A, 0x40);      // Interrupts for AOI 1 & 2
+    // write_and_assert(ACCEL_CTRL_REG5_A, 0x08); // Latch int1
+    // write_and_assert(ACCEL_CTRL_REG6_A, 0x41); // Enable interrupt 1 on IA2 pin
+    // write_and_assert(ACCEL_INT1_CFG_A, 0xB0);  // all interrupts
+    // write_and_assert(ACCEL_INT1_THS_A, 1);
+    // write_and_assert(ACCEL_INT1_DURATION_A, 1); // 100 ms debounce
+    //
+    // write_and_assert(ACCEL_INT2_CFG_A, 0xB0);  // all interrupts
+    // write_and_assert(ACCEL_INT2_THS_A, 50);
+    // write_and_assert(ACCEL_INT2_DURATION_A, 10); // 100 ms debounce
 }
 
 #define ACCEL_INT_Z_HIGH (1 << 5)
@@ -183,9 +210,8 @@ extern GameState gs;
 void accelerometer_interrupt_handler(void) {
     *GPIO_ICR(gpio_port_a) |= (1 << 2); // Clear interrupt on pin 2
     uint8_t int_src = accel_read(ACCEL_INT1_SRC_A);
-
-    if (int_src & ACCEL_INT_Z_LOW) {
-    }
+    uint8_t in2_src = accel_read(ACCEL_INT2_SRC_A);
+    uint8_t clk_src = accel_read(ACCEL_CLICK_SRC_A);
 
     // clang-format off
     if (int_src & ACCEL_INT_Y_HIGH) game_move_dir(&gs, MOVE_UP);
