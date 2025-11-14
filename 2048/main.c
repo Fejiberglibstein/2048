@@ -54,42 +54,37 @@ int main(void) {
     int i, x, y;
     render_board(&gs);
 
-    uint8_t result = accel_read(0x0F);
-    assert(result == 0x33);
-
     bool has_reset;
 
-    for (;;)
-        ;
-    // for (;;) {
-    //     struct AccelerometerData d;
-    //     MoveDirection dir;
-    //     accel_get_acceleration(&d);
-    //
-    //     if (d.z < -15000) {
-    //         has_reset = true;
-    //         continue;
-    //     }
-    //
-    //     if (has_reset == false) {
-    //         continue;
-    //     }
-    //
-    //     if (d.x < -10000) {
-    //         game_move_dir(&gs, MOVE_DOWN);
-    //         has_reset = false;
-    //     }
-    //     if (d.x > 10000) {
-    //         game_move_dir(&gs, MOVE_UP);
-    //         has_reset = false;
-    //     }
-    //     if (d.y < -10000) {
-    //         game_move_dir(&gs, MOVE_LEFT);
-    //         has_reset = false;
-    //     }
-    //     if (d.y > 10000) {
-    //         game_move_dir(&gs, MOVE_RIGHT);
-    //         has_reset = false;
-    //     }
-    // }
+    for (;;) {
+        // struct AccelerometerData d;
+        // MoveDirection dir;
+        // accel_get_acceleration(&d);
+        //
+        // if (d.z < -15000) {
+        //     has_reset = true;
+        //     continue;
+        // }
+        //
+        // if (has_reset == false) {
+        //     continue;
+        // }
+        //
+        // if (d.x < -10000) {
+        //     game_move_dir(&gs, MOVE_DOWN);
+        //     has_reset = false;
+        // }
+        // if (d.x > 10000) {
+        //     game_move_dir(&gs, MOVE_UP);
+        //     has_reset = false;
+        // }
+        // if (d.y < -10000) {
+        //     game_move_dir(&gs, MOVE_LEFT);
+        //     has_reset = false;
+        // }
+        // if (d.y > 10000) {
+        //     game_move_dir(&gs, MOVE_RIGHT);
+        //     has_reset = false;
+        // }
+    }
 }
