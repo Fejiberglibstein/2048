@@ -27,28 +27,13 @@ void clock_init() {
 
 GameState gs;
 
-// void polling_timer_init() {
-//     uint32_t timer_ports = 1 << 1;
-//     *SYSCTL_RCGCTIMER |= timer_ports;
-//     while ((*SYSCTL_PRTIMER & timer_ports) != timer_ports)
-//         ;
-//
-//     // Enable timer 1 (poll)
-//     *GPTM_CTL(timer_1) &= ~0x1;          // Clear the Timer A enable bit
-//     *GPTM_CFG(timer_1) = 0;              // Configure as 32 bit timer
-//     *GPTM_TAMR(timer_1) |= 0x2;          // Set timer to be periodic
-//     *GPTM_TAILR(timer_1) = 66666666 / 1; // Timer interrupts every 16 cycles
-//     *GPTM_IMR(timer_1) |= 0x01;          // Configure timer to use interrupts
-//     *REG(0xE000E100) |= 1 << 21; // Timer 1 is 23rd offset in interrupt
-//     vtable *GPTM_CTL(timer_1) |= 0x01;  // Enable the timer
-// }
-
 int main(void) {
     clock_init();
     matrix_init();
     accel_init();
     accel_interrupts_init();
     game_init(&gs);
+    render_init_colors();
     // polling_timer_init();
 
     int i, x, y;
@@ -56,35 +41,6 @@ int main(void) {
 
     bool has_reset;
 
-    for (;;) {
-        // struct AccelerometerData d;
-        // MoveDirection dir;
-        // accel_get_acceleration(&d);
-        //
-        // if (d.z < -15000) {
-        //     has_reset = true;
-        //     continue;
-        // }
-        //
-        // if (has_reset == false) {
-        //     continue;
-        // }
-        //
-        // if (d.x < -10000) {
-        //     game_move_dir(&gs, MOVE_DOWN);
-        //     has_reset = false;
-        // }
-        // if (d.x > 10000) {
-        //     game_move_dir(&gs, MOVE_UP);
-        //     has_reset = false;
-        // }
-        // if (d.y < -10000) {
-        //     game_move_dir(&gs, MOVE_LEFT);
-        //     has_reset = false;
-        // }
-        // if (d.y > 10000) {
-        //     game_move_dir(&gs, MOVE_RIGHT);
-        //     has_reset = false;
-        // }
-    }
+    for (;;)
+        ;
 }
