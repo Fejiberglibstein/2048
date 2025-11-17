@@ -171,8 +171,7 @@ void accel_interrupts_init() {
     *REG(0xE000E100) |= 1 << 0; // GPIO Port a is 0th offset in vectable
 
     accel_write(ACCEL_CTRL_REG5_A, 0x80); // Reset memory
-    accel_write(ACCEL_CTRL_REG1_A, 0x57); // ODR = 5, enable xyz
-    accel_write(ACCEL_CTRL_REG4_A, 0x80);
+    accel_write(ACCEL_CTRL_REG1_A, 0x77); // ODR = 5, enable xyz
 
     int i;
     for (i = 0; i < 10000; i++)
@@ -180,22 +179,22 @@ void accel_interrupts_init() {
 
     assert(accel_read(ACCEL_WHO_AM_I_A) == 0x33);
 
-    write_and_assert(ACCEL_CLICK_CFG_A, 0x10);
-    write_and_assert(ACCEL_CLICK_THS_A, 0x0A);
-    write_and_assert(ACCEL_TIME_LIMIT_A, 0x05);
-    write_and_assert(ACCEL_TIME_LATENCY_A, 0x05);
-    write_and_assert(ACCEL_TIME_WINDOW_A, 0x32);
+    assert(accel_read(ACCEL_WHO_AM_I_A) == 0x33);
 
-    // accel_write(ACCEL_CTRL_REG3_A, 0x40);      // Interrupts for AOI 1 & 2
-    // write_and_assert(ACCEL_CTRL_REG5_A, 0x08); // Latch int1
-    // write_and_assert(ACCEL_CTRL_REG6_A, 0x41); // Enable interrupt 1 on IA2 pin
-    // write_and_assert(ACCEL_INT1_CFG_A, 0xB0);  // all interrupts
-    // write_and_assert(ACCEL_INT1_THS_A, 1);
-    // write_and_assert(ACCEL_INT1_DURATION_A, 1); // 100 ms debounce
-    //
-    // write_and_assert(ACCEL_INT2_CFG_A, 0xB0);  // all interrupts
-    // write_and_assert(ACCEL_INT2_THS_A, 50);
-    // write_and_assert(ACCEL_INT2_DURATION_A, 10); // 100 ms debounce
+    write_and_assert(ACCEL_CTRL_REG2_A, 0x00);
+    //    write_and_assert(ACCEL_CTRL_REG3_A, 0x60);
+    write_and_assert(ACCEL_CTRL_REG4_A, 0x00);
+    write_and_assert(ACCEL_CTRL_REG5_A, 0x00);
+    write_and_assert(ACCEL_CTRL_REG6_A, 0x08);
+
+    write_and_assert(ACCEL_INT1_CFG_A, 0x0f);
+    write_and_assert(ACCEL_INT1_THS_A, 0x1f);
+    write_and_assert(ACCEL_INT1_DURATION_A, 0x01);
+    write_and_assert(ACCEL_ACT_THS_A, 0x1f);
+    write_and_assert(ACCEL_ACT_DUR_A, 0x07);
+
+    for (i = 0; i < 10000; i++)
+        __asm__("\tnop"); // Wait for it to turn on
 }
 
 #define ACCEL_INT_Z_HIGH (1 << 5)
@@ -207,16 +206,44 @@ void accel_interrupts_init() {
 
 extern GameState gs;
 
+bool has_reset = true;
+
 void accelerometer_interrupt_handler(void) {
     *GPIO_ICR(gpio_port_a) |= (1 << 2); // Clear interrupt on pin 2
     uint8_t int_src = accel_read(ACCEL_INT1_SRC_A);
-    uint8_t in2_src = accel_read(ACCEL_INT2_SRC_A);
-    uint8_t clk_src = accel_read(ACCEL_CLICK_SRC_A);
 
-    // clang-format off
-    if (int_src & ACCEL_INT_Y_HIGH) game_move_dir(&gs, MOVE_UP);
-    if (int_src & ACCEL_INT_Y_LOW) game_move_dir(&gs, MOVE_DOWN);
-    if (int_src & ACCEL_INT_X_HIGH) game_move_dir(&gs, MOVE_LEFT);
-    if (int_src & ACCEL_INT_X_LOW) game_move_dir(&gs, MOVE_RIGHT);
-    // clang-format on
+    struct AccelerometerData d;
+    MoveDirection dir;
+    accel_get_acceleration(&d);
+
+    if (has_reset) {
+        if (d.x < -10000) {
+            game_move_dir(&gs, MOVE_DOWN);
+            goto reset;
+        }
+        if (d.x > 10000) {
+            game_move_dir(&gs, MOVE_UP);
+            goto reset;
+        }
+        if (d.y < -10000) {
+            game_move_dir(&gs, MOVE_LEFT);
+            goto reset;
+        }
+        if (d.y > 10000) {
+            game_move_dir(&gs, MOVE_RIGHT);
+            goto reset;
+        }
+
+        return; // Don't reset because nothing was read
+
+    reset:
+        has_reset = false;
+        // Enable only the z axis interrupt
+        write_and_assert(ACCEL_INT1_CFG_A, 0x20);
+        return;
+    } else if (d.z < -11500) {
+        has_reset = true;
+        // Enable all the other axes
+        write_and_assert(ACCEL_INT1_CFG_A, 0x0F);
+    }
 }
