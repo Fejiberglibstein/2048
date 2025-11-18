@@ -31,8 +31,8 @@ struct {
     uint8_t current_row;
     // Will be 0 or 1 since there are 2 buffers
     uint8_t current_buf;
+    bool should_swap;
 } MatrixState __attribute__((aligned(32))) = {};
-
 
 void matrix_init() {
     //                                                                        //
@@ -195,8 +195,11 @@ void timer_0_handler(void) {
         MatrixState.current_row += 2;
         if (MatrixState.current_row >= 64) {
             MatrixState.current_row = 0;
-            // Switch to the alternate buffer
-            // matrix_swap_bufs();
+            if (MatrixState.should_swap) {
+                // Switch to the alternate buffer
+                MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
+                MatrixState.should_swap = false;
+            }
         }
     }
     *address_pins = old_row;
@@ -252,12 +255,13 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
 }
 
 void matrix_swap_bufs() {
-    MatrixState.current_buf = (MatrixState.current_buf + 1) % 2;
+    // Flag the matrix to swap buffers when the frame is finished
+    MatrixState.should_swap = true; 
 }
 
 void matrix_pause() {
     // Clear TAEN to turn off the timer while it is writing data to the matrix
-    *GPTM_CTL(timer_2) &= ~0x1; 
+    *GPTM_CTL(timer_2) &= ~0x1;
     // If timer 0 is primed, wait for it to complete
     while (*GPTM_CTL(timer_0) & 0x1)
         ;
@@ -266,5 +270,5 @@ void matrix_pause() {
 void matrix_resume() {
     // Turn Timer 2 back on again. This is guaranteed not to break the one shot
     // timer since `matrix_pause` waits for the one shot timer to finish
-    *GPTM_CTL(timer_2) |= 0x1; 
+    *GPTM_CTL(timer_2) |= 0x1;
 }
