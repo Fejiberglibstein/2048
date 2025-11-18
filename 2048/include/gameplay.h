@@ -1,18 +1,13 @@
 #include "stdint.h"
+#include "animation.h"
 
 #ifndef _GAMEPLAY_H
 #define _GAMEPLAY_H
 
 typedef struct {
     uint8_t board[4][4];
+    AnimationState as;
 } GameState;
-
-typedef enum {
-    MOVE_UP,
-    MOVE_DOWN,
-    MOVE_LEFT,
-    MOVE_RIGHT,
-} MoveDirection;
 
 typedef struct Coord {
     uint8_t x;
