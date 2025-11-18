@@ -11,7 +11,7 @@
 ;; r2: y coordinate
     .def matrix_draw_pixel
 matrix_draw_pixel:
-    push {r4, lr, r11}
+    push {lr, r11}
     push {r0-r2}
     bl matrix_get_wbuf
     pop {r1-r3} ; Swap r0->r1, r1->r2, r2->r3
@@ -32,6 +32,6 @@ matrix_draw_pixel:
         lsr r1, r1, #8       ; Shift to get the next color
     .endloop
 
-    pop {r4, lr, r11}
+    pop {lr, r11}
     bx lr
 .end
