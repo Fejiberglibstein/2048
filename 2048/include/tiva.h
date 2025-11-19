@@ -1,5 +1,7 @@
-#define REG(p) ((volatile uint32_t *)(p))
+#include <assert.h>
+#include <stdint.h>
 
+#define REG(p) ((volatile uint32_t *)(p))
 #define assert(cond)                                                           \
     if (!(cond))                                                               \
         while (1)                                                              \
@@ -339,3 +341,17 @@
 #define SSI_PCellID2(p)  REG(p + 0xFF8) // SSI PrimeCell Identification 2
 #define SSI_PCellID3(p)  REG(p + 0xFFC) // SSI PrimeCell Identification 3
 
+#define sys_core_peripherals 0xE000E000
+
+static void interrupt_enable(uint8_t interrupt_num, uint8_t priority) {
+    assert(interrupt_num <= 138);
+    assert(priority < 8);
+
+    // Enable interrupt
+    *REG(0xE000E100 + (interrupt_num / 32)) |= 1 << (interrupt_num % 32);
+
+    // The bit layout of the interrupt priority registers is so strange: pg. 153
+    uint8_t bit_offset = (uint8_t[]){5, 13, 21, 29}[interrupt_num % 4];
+    // Set the priority
+    *REG(0xE000E400 + (interrupt_num / 4)) |= priority << (bit_offset);
+}

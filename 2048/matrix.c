@@ -137,20 +137,20 @@ void matrix_init() {
         ;
 
     // Enable timer 2 (periodic row driver)
-    *GPTM_CTL(timer_2) &= ~0x1;  // Clear the Timer A enable bit
-    *GPTM_CFG(timer_2) = 0;      // Configure as 32 bit timer
-    *GPTM_TAMR(timer_2) |= 0x2;  // Set timer to be periodic
-    *GPTM_TAILR(timer_2) = 16;   // Timer interrupts every 16 cycles
-    *GPTM_IMR(timer_2) |= 0x01;  // Configure timer to use interrupts
-    *REG(0xE000E100) |= 1 << 23; // Timer 2 is 23rd offset in interrupt vtable
-    *GPTM_CTL(timer_2) |= 0x01;  // Enable the timer
+    *GPTM_CTL(timer_2) &= ~0x1; // Clear the Timer A enable bit
+    *GPTM_CFG(timer_2) = 0;     // Configure as 32 bit timer
+    *GPTM_TAMR(timer_2) |= 0x2; // Set timer to be periodic
+    *GPTM_TAILR(timer_2) = 16;  // Timer interrupts every 16 cycles
+    *GPTM_IMR(timer_2) |= 0x01; // Configure timer to use interrupts
+    interrupt_enable(23, 0);    // Enable timer 2 with the highest priority
+    *GPTM_CTL(timer_2) |= 0x01; // Enable the timer
 
     // Enable timer 0 (one shot row handler)
-    *GPTM_CTL(timer_0) &= ~0x1;  // Clear the Timer A enable bit
-    *GPTM_CFG(timer_0) = 0;      // Configure as 32 bit timer
-    *GPTM_TAMR(timer_0) |= 0x1;  // Set timer to be oneshot
-    *GPTM_IMR(timer_0) |= 0x01;  // Configure timer to use interrupts
-    *REG(0xE000E100) |= 1 << 19; // Timer 0 is 19th offset in interrupt vtable
+    *GPTM_CTL(timer_0) &= ~0x1; // Clear the Timer A enable bit
+    *GPTM_CFG(timer_0) = 0;     // Configure as 32 bit timer
+    *GPTM_TAMR(timer_0) |= 0x1; // Set timer to be oneshot
+    *GPTM_IMR(timer_0) |= 0x01; // Configure timer to use interrupts
+    interrupt_enable(19, 0);    // Enable timer 0 with the highest priority
 }
 
 uint8_t *matrix_get_rbuf() {
@@ -256,7 +256,7 @@ MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {
 
 void matrix_swap_bufs() {
     // Flag the matrix to swap buffers when the frame is finished
-    MatrixState.should_swap = true; 
+    MatrixState.should_swap = true;
 }
 
 void matrix_pause() {
