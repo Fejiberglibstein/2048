@@ -204,7 +204,7 @@ void accel_interrupts_init() {
 #define ACCEL_INT_X_HIGH (1 << 1)
 #define ACCEL_INT_X_LOW (1 << 0)
 
-extern GameState gs;
+extern GameState gs; // defined in main.c
 
 bool has_reset = true;
 
