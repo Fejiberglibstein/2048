@@ -1,9 +1,21 @@
 #include "include/animation.h"
+#include "include/gameplay.h"
+#include "include/matrix.h"
+#include "include/render.h"
 #include "include/tiva.h"
-#include <stdio.h>
+
+extern GameState gs; // defined in main.c
 
 // Initialize the 30fps timer for animations
 void animation_init() {
+    // Enable timer 1 (30fps timer)
+    *GPTM_CTL(timer_1) &= ~0x1;           // Clear the Timer A enable bit
+    *GPTM_CFG(timer_1) = 0;               // Configure as 32 bit timer
+    *GPTM_TAMR(timer_1) |= 0x2;           // Set timer to be periodic
+    *GPTM_TAILR(timer_1) = 66666666 / 30; // Timer interrupts to 30Hz
+    *GPTM_IMR(timer_1) |= 0x01;           // Configure timer to use interrupts
+    interrupt_enable(21, 1);    // Enable timer 1 with the 2nd highest priority
+    *GPTM_CTL(timer_1) |= 0x01; // Enable the timer
 }
 
 void animation_add_anim(AnimationState *as, Animation anim) {
