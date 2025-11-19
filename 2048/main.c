@@ -37,7 +37,7 @@ int main(void) {
     // polling_timer_init();
 
     int i, x, y;
-    render_board(&gs);
+    render_board(gs.board);
 
     bool has_reset;
 
