@@ -168,7 +168,7 @@ void accel_interrupts_init() {
     *GPIO_RIS(gpio_port_a) = 0;
     // 4. Unmask the port by setting the IME field in the GPIOIM register.
     *GPIO_IM(gpio_port_a) |= interrupt_pin;
-    *REG(0xE000E100) |= 1 << 0; // GPIO Port a is 0th offset in vectable
+    interrupt_enable(0, 7); // Enable GPIO port A interrupt with the lowest prio
 
     accel_write(ACCEL_CTRL_REG5_A, 0x80); // Reset memory
     accel_write(ACCEL_CTRL_REG1_A, 0x77); // ODR = 5, enable xyz
