@@ -287,19 +287,17 @@ void clear_tile(uint8_t x, uint8_t y) {
     }
 }
 
-void render_board(GameState *gs) {
-    int i, j;
-    for (i = 0; i < 4; i++) {
-        for (j = 0; j < 4; j++) {
-            if (gs->board[i][j] == 0) {
-                clear_tile(j * 16, i * 16);
+void render_board(uint8_t board[4][4]) {
+    int y, x;
+    for (y = 0; y < 4; y++) {
+        for (x = 0; x < 4; x++) {
+            if (board[y][x] == 0) {
+                clear_tile(x * 16, y * 16);
             } else {
-                render_tile(j * 16, i * 16, gs->board[i][j]);
+                render_tile(x * 16, y * 16, board[y][x]);
             }
         }
     }
-
-    matrix_swap_bufs();
 }
 
 void render_init_colors() {
