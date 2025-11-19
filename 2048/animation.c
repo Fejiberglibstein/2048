@@ -27,9 +27,13 @@ void animation_remove_anim(AnimationState *as, uint32_t index) {
     if (as->animations_length == 0)
         return;
 
-    // Swap removal algorithm
     as->animations_length -= 1;
-    as->animations[index] = as->animations[as->animations_length];
+    const int len = as->animations_length;
+
+    int i;
+    for (i = index; i < len; i++) {
+        as->animations[i] = as->animations[i + 1];
+    }
 }
 
 void animation_new_moved_anim(
@@ -74,4 +78,81 @@ void animation_new_spawn_anim(
             },
         }
     );
+}
+
+void animation_timer(void) {
+    *GPTM_ICR(timer_1) |= 0x1; // Clear TATOCINT interrupt
+
+    // 24 is the computed number that determines how long the animations for a
+    //    single movement will last
+    if (gs.as.frame_number > 24) {
+        return;
+    }
+
+    // Render all of the static tiles first
+    render_board(gs.as.static_tiles);
+
+    int i;
+    Animation anim;
+    for (i = 0; i < gs.as.animations_length; i++) {
+        anim = gs.as.animations[i];
+        if (anim.kind == ANIMATION_MOVE) {
+            int tile_offset = gs.as.frame_number * 4;
+
+            int dx = 0;
+            int dy = 0;
+            switch (gs.as.current_direction) {
+            case MOVE_UP:
+                dy = -1 * tile_offset;
+                if (anim.move.start_y + dy <= anim.move.dest_y) {
+                    render_tile(
+                        anim.move.dest_x, anim.move.dest_y, anim.move.new_num
+                    );
+                    continue;
+                }
+                break;
+            case MOVE_DOWN:
+                dy = 1 * tile_offset;
+                if (anim.move.start_y + dy >= anim.move.dest_y) {
+                    render_tile(
+                        anim.move.dest_x, anim.move.dest_y, anim.move.new_num
+                    );
+                    continue;
+                }
+                break;
+            case MOVE_LEFT:
+                dx = -1 * tile_offset;
+                if (anim.move.start_x + dx <= anim.move.dest_x) {
+                    render_tile(
+                        anim.move.dest_x, anim.move.dest_y, anim.move.new_num
+                    );
+                    continue;
+                }
+                break;
+            case MOVE_RIGHT:
+                dx = 1 * tile_offset;
+                if (anim.move.start_x + dx >= anim.move.dest_x) {
+                    render_tile(
+                        anim.move.dest_x, anim.move.dest_y, anim.move.new_num
+                    );
+                    continue;
+                }
+                break;
+            }
+
+            render_tile(
+                anim.move.start_x + dx,
+                anim.move.start_y + dy,
+                anim.move.old_num
+            );
+        } else if (anim.kind == ANIMATION_SPAWN) {
+            // Spawn animations last 16 frames.
+            if (gs.as.frame_number > 15) {
+                continue;
+            }
+
+        }
+    }
+
+    gs.as.frame_number += 1;
 }
