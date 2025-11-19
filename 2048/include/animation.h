@@ -16,6 +16,7 @@ typedef struct {
         struct {
             uint8_t x;
             uint8_t y;
+            uint8_t number;
         } spawn;
 
         struct {
@@ -23,6 +24,8 @@ typedef struct {
             uint8_t start_y;
             uint8_t dest_x;
             uint8_t dest_y;
+            uint8_t old_num;
+            uint8_t new_num;
         } move;
     };
 
@@ -35,21 +38,27 @@ typedef struct {
 typedef struct {
     /// The list of animations that are being played
     Animation animations[16];
+    uint8_t static_tiles[4][4];
     uint32_t animations_length;
+    /// The frame number from the start of the last tile movement
+    ///
+    /// It is reset to 0 every time a movement in the game state occurs
+    uint32_t frame_number;
 
     /// The direction the tiles are moving in.
     MoveDirection current_direction;
 } AnimationState;
 
-
 void animation_init();
 void animation_new_moved_anim(
-        AnimationState *as,
+    AnimationState *as,
     uint8_t old_col,
     uint8_t old_row,
     uint8_t new_col,
-    uint8_t new_row
+    uint8_t new_row,
+    uint8_t old_num,
+    uint8_t new_num
 );
-void animation_new_spawn_anim(AnimationState *as, uint8_t col, uint8_t row);
+void animation_new_spawn_anim(AnimationState *as, uint8_t col, uint8_t row, uint8_t number);
 
 #endif // _ANIMATION_H

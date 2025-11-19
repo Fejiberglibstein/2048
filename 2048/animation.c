@@ -25,20 +25,10 @@ void animation_new_moved_anim(
     uint8_t old_col,
     uint8_t old_row,
     uint8_t new_col,
-    uint8_t new_row
+    uint8_t new_row,
+    uint8_t old_num,
+    uint8_t new_num
 ) {
-    printf(
-        "Animation {\n"
-        "    .start_x = %d\n"
-        "    .start_y = %d\n"
-        "    .dest_x = %d\n"
-        "    .dest_y = %d\n"
-        "}\n",
-        old_col * 16,
-        old_row * 16,
-        new_col * 16,
-        new_row * 16
-    );
     animation_add_anim(
         as,
         (Animation) {
@@ -48,12 +38,19 @@ void animation_new_moved_anim(
                 .start_y = old_row * 16,
                 .dest_x = new_col * 16,
                 .dest_y = new_row * 16,
+                .old_num = old_num,
+                .new_num = new_num,
             },
         }
     );
 }
 
-void animation_new_spawn_anim(AnimationState *as, uint8_t col, uint8_t row) {
+void animation_new_spawn_anim(
+    AnimationState *as,
+    uint8_t col,
+    uint8_t row,
+    uint8_t num
+) {
     animation_add_anim(
         as,
         (Animation) {
@@ -61,6 +58,7 @@ void animation_new_spawn_anim(AnimationState *as, uint8_t col, uint8_t row) {
             .spawn = {
                 .x = col,
                 .y = row,
+                .number = num,
             },
         }
     );
