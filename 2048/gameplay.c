@@ -20,6 +20,7 @@ void game_move_up(GameState *gs) {
             //
             // Will have the value of `1 << n` where n is in the range (0, 3).
             uint8_t tile_combined_at_position = 0;
+            uint8_t original_num = gs->board[start][i];
             for (j = start; j >= 0; j--) { // Iterate for every row
                 uint8_t *onto_tile = &gs->board[j][i];
                 uint8_t *from_tile = &gs->board[j + 1][i];
@@ -59,7 +60,7 @@ void game_move_up(GameState *gs) {
             combined_flag |= tile_combined_at_position;
             if (tile_has_moved) {
                 tile_has_moved = false;
-                animation_new_moved_anim(&gs->as, i, start + 1, i, j);
+                animation_new_moved_anim(&gs->as, i, start + 1, i, j, original_num, gs->board[j][i]);
             }
         }
     }
@@ -79,6 +80,7 @@ void game_move_down(GameState *gs) {
             //
             // Will have the value of `1 << n` where n is in the range (0, 3).
             uint8_t tile_combined_at_position = 0;
+            uint8_t original_num = gs->board[start][i];
             for (j = start; j < 4; j++) { // Iterate for every row
                 uint8_t *onto_tile = &gs->board[j][i];
                 uint8_t *from_tile = &gs->board[j - 1][i];
@@ -118,7 +120,7 @@ void game_move_down(GameState *gs) {
             combined_flag |= tile_combined_at_position;
             if (tile_has_moved) {
                 tile_has_moved = false;
-                animation_new_moved_anim(&gs->as, i, start - 1, i, j);
+                animation_new_moved_anim(&gs->as, i, start - 1, i, j, original_num, gs->board[j][i]);
             }
         }
     }
@@ -138,6 +140,7 @@ void game_move_left(GameState *gs) {
             //
             // Will have the value of `1 << n` where n is in the range (0, 3).
             uint8_t tile_combined_at_position = 0;
+            uint8_t original_num = gs->board[i][start];
             for (j = start; j >= 0; j--) { // Iterate for every col
                 uint8_t *onto_tile = &gs->board[i][j];
                 uint8_t *from_tile = &gs->board[i][j + 1];
@@ -177,7 +180,7 @@ void game_move_left(GameState *gs) {
             combined_flag |= tile_combined_at_position;
             if (tile_has_moved) {
                 tile_has_moved = false;
-                animation_new_moved_anim(&gs->as, start + 1, i, j, i);
+                animation_new_moved_anim(&gs->as, start + 1, i, j, i, original_num, gs->board[i][j]);
             }
         }
     }
@@ -197,6 +200,7 @@ void game_move_right(GameState *gs) {
             //
             // Will have the value of `1 << n` where n is in the range (0, 3).
             uint8_t tile_combined_at_position = 0;
+            uint8_t original_num = gs->board[i][start];
             for (j = start; j < 4; j++) { // Iterate for every col
                 uint8_t *onto_tile = &gs->board[i][j];
                 uint8_t *from_tile = &gs->board[i][j - 1];
@@ -236,7 +240,7 @@ void game_move_right(GameState *gs) {
             combined_flag |= tile_combined_at_position;
             if (tile_has_moved) {
                 tile_has_moved = false;
-                animation_new_moved_anim(&gs->as, start - 1, i, j, i);
+                animation_new_moved_anim(&gs->as, start - 1, i, j, i, original_num, gs->board[i][j]);
             }
         }
     }
@@ -263,7 +267,7 @@ void game_spawn_new_tile(GameState *gs) {
     uint8_t tile_num = ((rand() % 0xFF) < 0xBF) ? 1 : 2;
     gs->board[spawn_loc.y][spawn_loc.x] = tile_num;
 
-    animation_new_spawn_anim(&gs->as, x, y);
+    animation_new_spawn_anim(&gs->as, x, y, tile_num);
 }
 
 void game_move_dir(GameState *gs, MoveDirection dir) {
@@ -290,5 +294,19 @@ void game_move_dir(GameState *gs, MoveDirection dir) {
         game_spawn_new_tile(gs);
     }
 
-    render_board(gs);
+    int x, y;
+    for (y = 0; y < 4; y++) {
+        for (x = 0; x < 4; x++) {
+            // If the tile did not change, then keep it, otherwise make it 0
+            if (dup[y][x] == gs->board[y][x]) {
+                gs->as.static_tiles[y][x] = gs->board[y][x];
+            } else {
+                gs->as.static_tiles[y][x] = 0;
+            }
+        }
+    }
+
+    gs->as.current_direction = dir;
+    gs->as.frame_number = 0;
+    render_board(gs->board);
 }
