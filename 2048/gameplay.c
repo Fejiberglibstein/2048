@@ -21,8 +21,12 @@ void game_reset(GameState *gs) {
 void game_init(GameState *gs) {
     srand(time(NULL));
 
-    game_spawn_new_tile(gs);
     gs->as = (AnimationState) {0};
+    game_spawn_new_tile(gs);
+    game_spawn_new_tile(gs);
+
+    render_board(gs->board);
+    matrix_swap_bufs();
 }
 
 void game_move_tiles(GameState *gs, Coord tiles[4]) {
@@ -35,7 +39,8 @@ void game_move_tiles(GameState *gs, Coord tiles[4]) {
         bool tile_has_moved = false;
 
         const Coord tile_start = tiles[start + 1];
-        Coord tile_end;
+        const uint8_t original_num = gs->board[tile_start.y][tile_start.x];
+        Coord tile_dest;
         // Non-zero if the current tile being moved has been combined with
         // another tile.
         //
@@ -49,14 +54,14 @@ void game_move_tiles(GameState *gs, Coord tiles[4]) {
             uint8_t *from_tile = &gs->board[from_coord.y][from_coord.x];
 
             if (*from_tile == 0) {
-                continue;
+                break;
             }
 
             if (*onto_tile == 0) {
                 *onto_tile = *from_tile;
                 *from_tile = 0;
                 tile_has_moved = true;
-                tile_end = onto_coord;
+                tile_dest = onto_coord;
                 continue;
             }
 
@@ -73,7 +78,7 @@ void game_move_tiles(GameState *gs, Coord tiles[4]) {
                 // Set the onto tile's bitflag to be 1
                 tile_combined_at_position = 1 << i;
                 tile_has_moved = true;
-                tile_end = onto_coord;
+                tile_dest = onto_coord;
                 break;
             }
             // If the tile wasn't moved at all now, then it won't be moved
@@ -82,15 +87,17 @@ void game_move_tiles(GameState *gs, Coord tiles[4]) {
         }
         combined_flag |= tile_combined_at_position;
         if (tile_has_moved) {
+            // Remove the moved tile from the static list
+            gs->as.static_tiles[tile_start.y][tile_start.x] = 0;
             tile_has_moved = false;
             animation_new_moved_anim(
                 &gs->as,
                 tile_start.y,
                 tile_start.x,
-                tile_end.y,
-                tile_end.x,
-                gs->board[tile_start.y][tile_start.x],
-                gs->board[tile_end.y][tile_end.x]
+                tile_dest.y,
+                tile_dest.x,
+                original_num,
+                gs->board[tile_dest.y][tile_dest.x]
             );
         }
     }
@@ -124,7 +131,6 @@ void game_move_left(GameState *gs) {
     }
 }
 
-
 struct Coord available_spawn_locations[16];
 void game_spawn_new_tile(GameState *gs) {
     int x, y;
@@ -150,8 +156,7 @@ void game_spawn_new_tile(GameState *gs) {
 }
 
 void game_move_dir(GameState *gs, MoveDirection dir) {
-    uint8_t dup[4][4];
-    memcpy(&dup, &gs->board, 16);
+    memcpy(&gs->as.static_tiles, &gs->board, 16);
     gs->as.animations_length = 0;
 
     switch (dir) {
@@ -170,20 +175,8 @@ void game_move_dir(GameState *gs, MoveDirection dir) {
     }
 
     // If the gameboard didn't change, then we can spawn a new tile
-    if (memcmp(dup, gs->board, 16) != 0) {
+    if (memcmp(gs->as.static_tiles, gs->board, 16) != 0) {
         game_spawn_new_tile(gs);
-    }
-
-    int x, y;
-    for (y = 0; y < 4; y++) {
-        for (x = 0; x < 4; x++) {
-            // If the tile did not change, then keep it, otherwise make it 0
-            if (dup[y][x] == gs->board[y][x]) {
-                gs->as.static_tiles[y][x] = gs->board[y][x];
-            } else {
-                gs->as.static_tiles[y][x] = 0;
-            }
-        }
     }
 
     gs->as.current_direction = dir;
