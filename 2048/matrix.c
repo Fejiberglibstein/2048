@@ -140,7 +140,7 @@ void matrix_init() {
     *GPTM_CTL(timer_2) &= ~0x1; // Clear the Timer A enable bit
     *GPTM_CFG(timer_2) = 0;     // Configure as 32 bit timer
     *GPTM_TAMR(timer_2) |= 0x2; // Set timer to be periodic
-    *GPTM_TAILR(timer_2) = 16;  // Timer interrupts every 16 cycles
+    *GPTM_TAILR(timer_2) = 18;  // Timer interrupts every 16 cycles
     *GPTM_IMR(timer_2) |= 0x01; // Configure timer to use interrupts
     interrupt_enable(23, 0);    // Enable timer 2 with the highest priority
     *GPTM_CTL(timer_2) |= 0x01; // Enable the timer
@@ -166,7 +166,6 @@ uint8_t *matrix_get_wbuf() {
 
 // Timer handler that interrupts everytime dma finishes a row
 void timer_2_handler(void) {
-    *GPTM_ICR(timer_2) |= 0x1;  // Clear TATOCINT interrupt
     *GPTM_CTL(timer_2) &= ~0x1; // Turn off the timer handler (clear TAEN)
 
     *DMA_CHIS |= (1 << 4) | (1 << 6) | (1 << 14); // Clear dma interrupts
@@ -180,12 +179,11 @@ void timer_2_handler(void) {
     *GPTM_TAILR(timer_0) = oneshot_delay;
 
     *GPTM_CTL(timer_0) |= 0x01;
+    *GPTM_ICR(timer_2) |= 0x1;  // Clear TATOCINT interrupt
 }
 
 // oneshot timer to reset dma & update row
 void timer_0_handler(void) {
-    *GPTM_ICR(timer_0) |= 0x01;
-
     *oe_pin = 1 << 5;    // Set oe high (turn off leds)
     *latch_pin = 1 << 0; // Set latch pin high
 
@@ -225,6 +223,7 @@ void timer_0_handler(void) {
 
     // Enable timer 2
     *GPTM_CTL(timer_2) |= 0x1; // Enable the TAEN bit
+    *GPTM_ICR(timer_0) |= 0x01; // Clear TATOCINT interrupt
 }
 
 MatrixColor matrix_color(uint32_t r, uint32_t g, uint32_t b) {

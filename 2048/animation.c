@@ -17,7 +17,7 @@ void animation_init() {
     *GPTM_CTL(timer_1) &= ~0x1;           // Clear the Timer A enable bit
     *GPTM_CFG(timer_1) = 0;               // Configure as 32 bit timer
     *GPTM_TAMR(timer_1) |= 0x2;           // Set timer to be periodic
-    *GPTM_TAILR(timer_1) = 66666666 / 30; // Timer interrupts to 30Hz
+    *GPTM_TAILR(timer_1) = 66666666 / 60; // Timer interrupts to 30Hz
     *GPTM_IMR(timer_1) |= 0x01;           // Configure timer to use interrupts
     interrupt_enable(21, 1);    // Enable timer 1 with the 2nd highest priority
     *GPTM_CTL(timer_1) |= 0x01; // Enable the timer
@@ -88,9 +88,7 @@ void animation_new_spawn_anim(
 
 #define ANIMATION_DURATION 25
 
-void animation_timer(void) {
-    *GPTM_ICR(timer_1) |= 0x1; // Clear TATOCINT interrupt
-
+void animation_frame(void) {
     if (gs.as.frame_number == ANIMATION_DURATION) {
         render_board(gs.board); // Render the actual state of the board
         matrix_swap_bufs();
@@ -194,4 +192,9 @@ void animation_timer(void) {
 
     matrix_swap_bufs(); // Done with drawing
     gs.as.frame_number += 1;
+}
+
+void animation_timer(void) {
+    animation_frame();
+    *GPTM_ICR(timer_1) |= 0x1; // Clear TATOCINT interrupt
 }
