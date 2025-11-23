@@ -17,7 +17,7 @@ void animation_init() {
     *GPTM_CTL(timer_1) &= ~0x1;           // Clear the Timer A enable bit
     *GPTM_CFG(timer_1) = 0;               // Configure as 32 bit timer
     *GPTM_TAMR(timer_1) |= 0x2;           // Set timer to be periodic
-    *GPTM_TAILR(timer_1) = CLOCK_SPEED / 40; // Timer interrupts to 30Hz
+    *GPTM_TAILR(timer_1) = CLOCK_SPEED / 60; // Timer interrupts to 30Hz
     *GPTM_IMR(timer_1) |= 0x01;           // Configure timer to use interrupts
     interrupt_enable(21, 1);    // Enable timer 1 with the 2nd highest priority
     *GPTM_CTL(timer_1) |= 0x01; // Enable the timer

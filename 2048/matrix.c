@@ -140,7 +140,7 @@ void matrix_init() {
     *GPTM_CTL(timer_2) &= ~0x1; // Clear the Timer A enable bit
     *GPTM_CFG(timer_2) = 0;     // Configure as 32 bit timer
     *GPTM_TAMR(timer_2) |= 0x2; // Set timer to be periodic
-    *GPTM_TAILR(timer_2) = 18;  // Timer interrupts every 18 cycles
+    *GPTM_TAILR(timer_2) = 19;  // Timer interrupts every 19 cycles
     *GPTM_IMR(timer_2) |= 0x01; // Configure timer to use interrupts
     interrupt_enable(23, 0);    // Enable timer 2 with the highest priority
     *GPTM_CTL(timer_2) |= 0x01; // Enable the timer
