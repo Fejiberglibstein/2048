@@ -348,10 +348,13 @@ static void interrupt_enable(uint8_t interrupt_num, uint8_t priority) {
     assert(priority < 8);
 
     // Enable interrupt
-    *REG(0xE000E100 + (interrupt_num / 32)) |= 1 << (interrupt_num % 32);
+    *REG(0xE000E100 + ((interrupt_num / 32) * 4)) |= 1 << (interrupt_num % 32);
 
     // The bit layout of the interrupt priority registers is so strange: pg. 153
     uint8_t bit_offset = (uint8_t[]){5, 13, 21, 29}[interrupt_num % 4];
     // Set the priority
-    *REG(0xE000E400 + (interrupt_num / 4)) |= priority << (bit_offset);
+    uint32_t prio = *REG(0xE000E400 + ((interrupt_num / 4) * 4));
+    prio &= ~(0b111 << bit_offset);
+    prio |= priority << bit_offset;
+    *REG(0xE000E400 + ((interrupt_num / 4) * 4)) = prio;
 }
