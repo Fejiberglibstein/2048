@@ -89,13 +89,18 @@ void animation_new_spawn_anim(
 #define ANIMATION_DURATION 25
 
 void animation_frame(void) {
+    if (gs.as.frame_number > ANIMATION_DURATION)
+        return;
+
+    // Wait for the previous frame to be drawn
+    while (!matrix_bufs_have_swapped())
+        ;
+
     if (gs.as.frame_number == ANIMATION_DURATION) {
         render_board(gs.board); // Render the actual state of the board
         matrix_swap_bufs();
         // Make it go past 1 so it doesn't rerender the board over and over
         gs.as.frame_number += 1;
-        return;
-    } else if (gs.as.frame_number > ANIMATION_DURATION) {
         return;
     }
 

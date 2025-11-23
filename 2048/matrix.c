@@ -258,6 +258,11 @@ void matrix_swap_bufs() {
     MatrixState.should_swap = true;
 }
 
+bool matrix_bufs_have_swapped() {
+    return MatrixState.should_swap == false;
+}
+
+
 void matrix_pause() {
     // Clear TAEN to turn off the timer while it is writing data to the matrix
     *GPTM_CTL(timer_2) &= ~0x1;
