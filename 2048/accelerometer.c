@@ -27,7 +27,7 @@ void accel_init() {
     *GPIO_ODR(gpio_port_a) |= 1 << 7;
 
     *I2C_MCR(i2c_1) = 0x00000010; // Enable i2c as master
-    *I2C_MTPR(i2c_1) = (66666666 / (2 * (6 + 4) * 100000)) - 1;
+    *I2C_MTPR(i2c_1) = (CLOCK_SPEED / (2 * (6 + 4) * 100000)) - 1;
 }
 
 uint8_t accel_read(uint8_t reg_addr) {

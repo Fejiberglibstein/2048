@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdint.h>
 
+#define CLOCK_SPEED 80000000
+
 #define REG(p) ((volatile uint32_t *)(p))
 #define assert(cond)                                                           \
     if (!(cond))                                                               \
