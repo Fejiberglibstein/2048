@@ -5,8 +5,6 @@
 #include "include/tiva.h"
 #include <stdbool.h>
 
-char printf_arena[256];
-
 void clock_init() {
     // Clear usesys and set byprass
     *SYSCTL_RCC = (*SYSCTL_RCC & ~(1 << 22)) | (1 << 11);
@@ -34,12 +32,7 @@ int main(void) {
     accel_interrupts_init();
     game_init(&gs);
     render_init_colors();
-    // polling_timer_init();
-
-    int i, x, y;
-    render_board(gs.board);
-
-    bool has_reset;
+    animation_init();
 
     for (;;)
         ;
