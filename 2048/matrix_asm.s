@@ -1,5 +1,12 @@
 .text
 
+li .macro reg, data
+    mov  reg, #(data & 0x0000FFFF)
+    movt reg, #((data & 0xFFFF0000) >> 16)
+    .endm
+
+gpio_port_b: .equ 0x40005000
+
     .ref matrix_get_wbuf 
 
 ;; Set a pixel in the matrix
@@ -35,3 +42,21 @@ matrix_draw_pixel:
     pop {lr, r11}
     bx lr
 .end
+
+;; Push a row of the buffer into the matrix
+;;
+;; # Parameters
+;; r0: row to start with
+    .def matrix_push_row
+matrix_push_row:
+    push {r4}
+    li r4, gpio_port_b
+    mov r1, #0x80 ; Clock high
+    mov r2, #0x77 ; RGB high
+    .loop 64
+        ldrb r3, [r0], #1
+        strb r3, [r4, #(0xf7 << 2)] ; Store to rgb pins
+        strb r1, [r4, #(0x80 << 2)] ; Set clock high
+    .endloop
+    pop {r4}
+    bx lr

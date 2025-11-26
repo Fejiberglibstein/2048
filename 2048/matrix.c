@@ -40,7 +40,7 @@ void matrix_init() {
     //                                                                        //
     uint32_t gpio_ports = 0b010110;
     *SYSCTL_RCGCGPIO |= gpio_ports;
-    while (*SYSCTL_PRGPIO != gpio_ports)
+    while ((*SYSCTL_PRGPIO & gpio_ports)!= gpio_ports)
         ;
 
     uint32_t output_enable_pin_mask = 1 << 5;
@@ -58,99 +58,101 @@ void matrix_init() {
     *GPIO_DIR(gpio_port_e) |= address_pins_mask; // enable output
     *GPIO_DEN(gpio_port_e) |= address_pins_mask; // digital enable
 
-    //                                                                        //
-    //                        Initialize uDMA                                 //
-    //                                                                        //
-    DmaChannel *chan;
-    uint32_t channel_number;
-    const uint8_t map_select = 1;
-
-    *SYSCTL_RCGCDMA = 0x00000001;
-    while (*SYSCTL_PRDMA != 0x00000001)
-        ;
-
-    *DMA_CFG = 0x00000001;
-    *DMA_CTLBASE = (uint32_t)DmaControlTable;
-
-    // Initialize dma channel 4
-    channel_number = 4;
-    chan = &DmaControlTable[channel_number];
-    *DMA_ALTCLR |= 1 << channel_number;
-    *DMA_CHMAP0 |= map_select << (channel_number * 4);
-    chan->src_buffer = &MatrixState.buffers[0]; // Start with the first buffer
-    chan->dest_buffer = (void *)(rgb_and_clk_pin);
-    chan->control_word = (
-          0b11 << 30   // No destination increment
-        | 0b00 << 28   // 1 byte destination data size
-        | 0b00 << 26   // 1 byte source increment
-        | 0b00 << 24   // 1 byte source data size
-        | 0b0000 << 14 // 1 item arbitration size
-        | 63 << 4      // 64 byte transfer size
-        | 0b0 << 3     // Next useburst disabled
-        | 0b01 << 0    // Basic transfer mode
-    );
-
-    // Initialize dma 6
-    channel_number = 6;
-    chan = &DmaControlTable[channel_number];
-    *DMA_ALTCLR |= 1 << channel_number;
-    *DMA_CHMAP0 |= map_select << (channel_number * 4);
-    chan->src_buffer = &MatrixClockPulseByte;
-    chan->dest_buffer = (void *)(gpio_port_b | (0x80 << 2));
-    chan->control_word = (
-          0b11 << 30   // No destination increment
-        | 0b00 << 28   // 1 byte destination data size
-        | 0b11 << 26   // No source increment
-        | 0b00 << 24   // 1 byte source data size
-        | 0b0000 << 14 // 1 item arbitration size
-        | 63 << 4      // 64 byte transfer size
-        | 0b0 << 3     // Next useburst disabled
-        | 0b01 << 0    // Basic transfer mode
-    );
-
-    // Initialize dma 14
-    channel_number = 14;
-    chan = &DmaControlTable[channel_number];
-    *DMA_ALTCLR |= 1 << channel_number;
-    *DMA_CHMAP1 |= map_select << 24; // 24 is channel14 select start
-    chan->src_buffer = &MatrixClockPulseByte;
-    chan->dest_buffer = (void *)(rgb_and_clk_pin);
-    chan->control_word = (
-          0b11 << 30   // No destination increment
-        | 0b00 << 28   // 1 byte destination data size
-        | 0b11 << 26   // No source increment
-        | 0b00 << 24   // 1 byte source data size
-        | 0b0000 << 14 // 1 item arbitration size
-        | 63 << 4      // 64 byte transfer size
-        | 0b0 << 3     // Next useburst disabled
-        | 0b01 << 0    // Basic transfer mode
-    );
-
-    *DMA_ENASET |= (1 << 4) | (1 << 6) | (1 << 14);
+    // //                                                                        //
+    // //                        Initialize uDMA                                 //
+    // //                                                                        //
+    // DmaChannel *chan;
+    // uint32_t channel_number;
+    // const uint8_t map_select = 1;
+    //
+    // *SYSCTL_RCGCDMA = 0x00000001;
+    // while (*SYSCTL_PRDMA != 0x00000001)
+    //     ;
+    //
+    // *DMA_CFG = 0x00000001;
+    // *DMA_CTLBASE = (uint32_t)DmaControlTable;
+    //
+    // // Initialize dma channel 4
+    // channel_number = 4;
+    // chan = &DmaControlTable[channel_number];
+    // *DMA_ALTCLR |= 1 << channel_number;
+    // *DMA_CHMAP0 |= map_select << (channel_number * 4);
+    // chan->src_buffer = &MatrixState.buffers[0]; // Start with the first buffer
+    // chan->dest_buffer = (void *)(rgb_and_clk_pin);
+    // chan->control_word = (
+    //       0b11 << 30   // No destination increment
+    //     | 0b00 << 28   // 1 byte destination data size
+    //     | 0b00 << 26   // 1 byte source increment
+    //     | 0b00 << 24   // 1 byte source data size
+    //     | 0b0000 << 14 // 1 item arbitration size
+    //     | 63 << 4      // 64 byte transfer size
+    //     | 0b0 << 3     // Next useburst disabled
+    //     | 0b01 << 0    // Basic transfer mode
+    // );
+    //
+    // // Initialize dma 6
+    // channel_number = 6;
+    // chan = &DmaControlTable[channel_number];
+    // *DMA_ALTCLR |= 1 << channel_number;
+    // *DMA_CHMAP0 |= map_select << (channel_number * 4);
+    // chan->src_buffer = &MatrixClockPulseByte;
+    // chan->dest_buffer = (void *)(gpio_port_b | (0x80 << 2));
+    // chan->control_word = (
+    //       0b11 << 30   // No destination increment
+    //     | 0b00 << 28   // 1 byte destination data size
+    //     | 0b11 << 26   // No source increment
+    //     | 0b00 << 24   // 1 byte source data size
+    //     | 0b0000 << 14 // 1 item arbitration size
+    //     | 63 << 4      // 64 byte transfer size
+    //     | 0b0 << 3     // Next useburst disabled
+    //     | 0b01 << 0    // Basic transfer mode
+    // );
+    //
+    // // Initialize dma 14
+    // channel_number = 14;
+    // chan = &DmaControlTable[channel_number];
+    // *DMA_ALTCLR |= 1 << channel_number;
+    // *DMA_CHMAP1 |= map_select << 24; // 24 is channel14 select start
+    // chan->src_buffer = &MatrixClockPulseByte;
+    // chan->dest_buffer = (void *)(rgb_and_clk_pin);
+    // chan->control_word = (
+    //       0b11 << 30   // No destination increment
+    //     | 0b00 << 28   // 1 byte destination data size
+    //     | 0b11 << 26   // No source increment
+    //     | 0b00 << 24   // 1 byte source data size
+    //     | 0b0000 << 14 // 1 item arbitration size
+    //     | 63 << 4      // 64 byte transfer size
+    //     | 0b0 << 3     // Next useburst disabled
+    //     | 0b01 << 0    // Basic transfer mode
+    // );
+    //
+    // *DMA_ENASET |= (1 << 4) | (1 << 6) | (1 << 14);
 
     //                                                                        //
     //                       Initialize Timers                                //
     //                                                                        //
-    uint32_t timer_ports = (1 << 2) | (1 << 0);
+    uint32_t timer_ports = (1 << 0);
     *SYSCTL_RCGCTIMER |= timer_ports;
     while (*SYSCTL_PRTIMER != timer_ports)
         ;
 
-    // Enable timer 2 (periodic row driver)
-    *GPTM_CTL(timer_2) &= ~0x1; // Clear the Timer A enable bit
-    *GPTM_CFG(timer_2) = 0;     // Configure as 32 bit timer
-    *GPTM_TAMR(timer_2) |= 0x2; // Set timer to be periodic
-    *GPTM_TAILR(timer_2) = 19;  // Timer interrupts every 19 cycles
-    *GPTM_IMR(timer_2) |= 0x01; // Configure timer to use interrupts
-    interrupt_enable(23, 0);    // Enable timer 2 with the highest priority
-    *GPTM_CTL(timer_2) |= 0x01; // Enable the timer
+    // // Enable timer 2 (periodic row driver)
+    // *GPTM_CTL(timer_2) &= ~0x1; // Clear the Timer A enable bit
+    // *GPTM_CFG(timer_2) = 0;     // Configure as 32 bit timer
+    // *GPTM_TAMR(timer_2) |= 0x2; // Set timer to be periodic
+    // *GPTM_TAILR(timer_2) = 20;  // Timer interrupts every 19 cycles
+    // *GPTM_IMR(timer_2) |= 0x01; // Configure timer to use interrupts
+    // interrupt_enable(23, 0);    // Enable timer 2 with the highest priority
+    // *GPTM_CTL(timer_2) |= 0x01; // Enable the timer
 
     // Enable timer 0 (one shot row handler)
     *GPTM_CTL(timer_0) &= ~0x1; // Clear the Timer A enable bit
     *GPTM_CFG(timer_0) = 0;     // Configure as 32 bit timer
-    *GPTM_TAMR(timer_0) |= 0x1; // Set timer to be oneshot
+    *GPTM_TAMR(timer_0) |= 0x2; // Set timer to be oneshot
+    *GPTM_TAILR(timer_0) = 1;   // Start the timer immediately
     *GPTM_IMR(timer_0) |= 0x01; // Configure timer to use interrupts
     interrupt_enable(19, 0);    // Enable timer 0 with the highest priority
+    *GPTM_CTL(timer_0) |= 0x01; // Enable the timer
 }
 
 uint8_t *matrix_get_rbuf() {
@@ -179,13 +181,21 @@ void timer_2_handler(void) {
     *GPTM_TAILR(timer_0) = oneshot_delay;
 
     *GPTM_CTL(timer_0) |= 0x01;
-    *GPTM_ICR(timer_2) |= 0x1;  // Clear TATOCINT interrupt
+    *GPTM_ICR(timer_2) |= 0x1; // Clear TATOCINT interrupt
 }
 
 // oneshot timer to reset dma & update row
 void timer_0_handler(void) {
     *oe_pin = 1 << 5;    // Set oe high (turn off leds)
     *latch_pin = 1 << 0; // Set latch pin high
+
+    uint8_t old_bitplane_level = MatrixState.bitplane_level;
+    MatrixState.bitplane_level++;
+    MatrixState.bitplane_level &= 0b11; // only care about 3 bits
+
+    // Set the timer's next delay
+    uint64_t oneshot_delay = timer_min_delay << (old_bitplane_level << 1);
+    *GPTM_TAILR(timer_0) = oneshot_delay;
 
     uint32_t old_row = MatrixState.current_row;
     if (MatrixState.bitplane_level == 0) {
@@ -205,24 +215,12 @@ void timer_0_handler(void) {
     *oe_pin = 0;    // Set oe low (turn on leds)
     *latch_pin = 0; // Set latch pin low
 
-    // Update the src buffer
-    DmaControlTable[4].src_buffer = (
-          matrix_get_rbuf()                         // Base buffer addr
+    matrix_push_row(
+        matrix_get_rbuf()                           // Base buffer addr
         + ((MatrixState.current_row >> 1) * 64 * 4) // offset by current row
-        + 63                                 // Go to the end of the buffer
-        + (MatrixState.bitplane_level << 6)  // Offset by the bitlevel
+        + (MatrixState.bitplane_level << 6)         // Offset by the bitlevel
     );
 
-    // Update the transfer size and set mode to basic for the 3 channels
-    DmaControlTable[4].control_word |= ((64 - 1) << 4) | (0x1 << 0);
-    DmaControlTable[6].control_word |= ((64 - 1) << 4) | (0x1 << 0);
-    DmaControlTable[14].control_word |= ((64 - 1) << 4) | (0x1 << 0);
-
-    // Reenable dma
-    *DMA_ENASET |= (1 << 4) | (1 << 6) | (1 << 14);
-
-    // Enable timer 2
-    *GPTM_CTL(timer_2) |= 0x1; // Enable the TAEN bit
     *GPTM_ICR(timer_0) |= 0x01; // Clear TATOCINT interrupt
 }
 
@@ -262,17 +260,13 @@ bool matrix_bufs_have_swapped() {
     return MatrixState.should_swap == false;
 }
 
-
 void matrix_pause() {
     // Clear TAEN to turn off the timer while it is writing data to the matrix
-    *GPTM_CTL(timer_2) &= ~0x1;
-    // If timer 0 is primed, wait for it to complete
-    while (*GPTM_CTL(timer_0) & 0x1)
-        ;
+    // *GPTM_CTL(timer_0) &= ~0x1;
 }
 
 void matrix_resume() {
     // Turn Timer 2 back on again. This is guaranteed not to break the one shot
     // timer since `matrix_pause` waits for the one shot timer to finish
-    *GPTM_CTL(timer_2) |= 0x1;
+    // *GPTM_CTL(timer_0) |= 0x1;
 }

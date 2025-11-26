@@ -27,9 +27,9 @@ GameState gs;
 
 int main(void) {
     clock_init();
-    matrix_init();
     accel_init();
     accel_interrupts_init();
+    matrix_init();
     game_init(&gs);
     render_init_colors();
     animation_init();
@@ -39,7 +39,7 @@ int main(void) {
     //     for (x = 0; x < 64; x += 1, i++) {
     //         matrix_draw_pixel(matrix_color(x % 16, 0, y % 16), x, y);
     //     }
-    // }
+    // }j
 
     matrix_swap_bufs();
 
