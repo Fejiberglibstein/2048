@@ -189,9 +189,9 @@ void accel_interrupts_init() {
     write_and_assert(ACCEL_CTRL_REG6_A, 0x08);
 
     write_and_assert(ACCEL_INT1_CFG_A, 0x0f);
-    write_and_assert(ACCEL_INT1_THS_A, 0x1f);
+    write_and_assert(ACCEL_INT1_THS_A, 0x19);
     write_and_assert(ACCEL_INT1_DURATION_A, 0x01);
-    write_and_assert(ACCEL_ACT_THS_A, 0x1f);
+    write_and_assert(ACCEL_ACT_THS_A, 0x10);
     write_and_assert(ACCEL_ACT_DUR_A, 0x07);
 
     for (i = 0; i < 10000; i++)
